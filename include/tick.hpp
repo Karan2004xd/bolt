@@ -1,7 +1,7 @@
 #pragma once
 #include "macros.hpp"
 #include "trace_conditions.hpp"
-#include <cstring>
+#include <type_traits>
 
 class Tick {
   TEST_FRIEND(TickTest);
@@ -10,11 +10,11 @@ public:
   Tick() = default;
   Tick(uint64_t timestamp, double price, uint32_t volume);
 
-  Tick(const Tick &other);
-  Tick(Tick &&other) noexcept;
+  Tick(const Tick &other) = default;
+  Tick(Tick &&other) noexcept = default;
 
-  auto operator=(const Tick &other) -> Tick;
-  auto operator=(Tick &&other) -> Tick;
+  auto operator=(const Tick &other) -> Tick & = default;
+  auto operator=(Tick &&other) -> Tick & = default;
 
   auto operator==(const Tick &other) const noexcept -> bool;
   auto operator!=(const Tick &other) const noexcept -> bool;
@@ -51,24 +51,8 @@ private:
   uint32_t volume_ {};
   TraceConditions trace_condition_ {TraceConditions::kNone};
 
-  template <typename T>
-  auto AssignValueToPtr_(char *dest_ptr,
-                         T &src,
-                         size_t src_size) const -> size_t {
-    std::memcpy(dest_ptr, &src, src_size);
-    return src_size;
-  }
-
-  template <typename T>
-  auto AssignValueFromPtr_(T &dest,
-                           const char *src_ptr,
-                           size_t dest_size) const -> size_t {
-    std::memcpy(&dest, src_ptr, dest_size);
-    return dest_size;
-  }
-
-  auto copy_from_(const Tick &tick) -> void;
-  auto reset_(Tick &&tick) noexcept -> void;
-
   auto check_equality_(const Tick &tick) const noexcept -> bool;
 };
+
+static_assert(std::is_standard_layout_v<Tick> && std::is_trivially_copyable_v<Tick>,
+              "Tick must be a standard-layout and trivially copyable type for safe serialization");
