@@ -9,9 +9,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic")
 
-# add_subdirectory("./src")
-# add_subdirectory("./tests")
+add_subdirectory("./src")
+add_subdirectory("./tests")
 
 add_executable(${PROJECT_NAME} main.cpp)
 
-# target_link_libraries(${PROJECT_NAME} PUBLIC src)
+target_link_libraries(${PROJECT_NAME} PUBLIC src)

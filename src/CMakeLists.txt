@@ -1,6 +1,7 @@
 project(src)
 
 add_library(${PROJECT_NAME}
+  "./tick.cpp"
 )
 
 target_link_directories(
