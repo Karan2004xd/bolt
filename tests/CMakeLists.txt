@@ -7,6 +7,9 @@ set(TEST_SOURCES
   "./tick_test.cpp"
   "./ring_buffer_test.cpp"
   "./thread_pool_test.cpp"
+  "./buffer_test.cpp"
+  "./buffer_manager_test.cpp"
+  "./state_test.cpp"
 )
 
 add_executable(${PROJECT_NAME} ${TEST_SOURCES})

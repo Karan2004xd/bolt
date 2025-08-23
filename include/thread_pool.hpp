@@ -10,7 +10,12 @@ class ThreadPool {
 
 public:
   ThreadPool();
+
   ThreadPool(const ThreadPool &other) = delete;
+  ThreadPool(ThreadPool &&other) noexcept = delete;
+
+  auto operator=(const ThreadPool &other) -> ThreadPool & = delete;
+  auto operator=(ThreadPool &&other) noexcept -> ThreadPool & = delete;
 
   template <typename TaskType, typename ...Args>
   auto AssignTask(TaskType &&task, Args&& ...args)
