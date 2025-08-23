@@ -12,6 +12,14 @@ public:
     EXPECT_EQ(tick.symbol_id_, {});
     EXPECT_EQ(tick.exchange_id_, {});
     EXPECT_EQ(tick.trace_condition_, TraceConditions::kNone);
+
+    auto tick2 = Tick(1001, 101.223, 100, 1, 2, TraceConditions::kAcquisition);
+    EXPECT_EQ(tick2.timestamp_, 1001);
+    EXPECT_DOUBLE_EQ(tick2.price_, 101.223);
+    EXPECT_EQ(tick2.volume_, 100);
+    EXPECT_EQ(tick2.symbol_id_, 1);
+    EXPECT_EQ(tick2.exchange_id_, 2);
+    EXPECT_EQ(tick2.trace_condition_, TraceConditions::kAcquisition);
   }
 
   static auto semantics_test() -> void {

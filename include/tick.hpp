@@ -2,6 +2,7 @@
 #include "macros.hpp"
 #include "trace_conditions.hpp"
 #include <type_traits>
+#include <cstddef>
 
 class Tick {
   TEST_FRIEND(TickTest);
@@ -9,6 +10,8 @@ class Tick {
 public:
   Tick() = default;
   Tick(uint64_t timestamp, double price, uint32_t volume);
+  Tick(uint64_t timestamp, double price, uint32_t volume,
+       uint32_t symbol_id, uint32_t exchange_id, TraceConditions trace_condition);
 
   Tick(const Tick &other) = default;
   Tick(Tick &&other) noexcept = default;

@@ -42,7 +42,7 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : " -Wall -Wextra -Wpedantic -std=c++20 -arch arm64"
+					"fragment" : " -Wall -Wextra -Wpedantic -std=c++20"
 				}
 			],
 			"language" : "CXX",
@@ -78,11 +78,11 @@
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "-L/Users/karan/Development/bolt/include",
+				"fragment" : "-L/home/karan/Documents/Code/bolt/include",
 				"role" : "libraryPath"
 			},
 			{
-				"fragment" : "-Wl,-rpath,/Users/karan/Development/bolt/include",
+				"fragment" : "-Wl,-rpath,/home/karan/Documents/Code/bolt/include",
 				"role" : "libraries"
 			},
 			{

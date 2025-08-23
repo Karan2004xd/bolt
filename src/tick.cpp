@@ -4,6 +4,17 @@
 Tick::Tick(uint64_t timestamp, double price, uint32_t volume)
   : timestamp_(timestamp), price_(price), volume_(volume) {}
 
+Tick::Tick(uint64_t timestamp, double price, uint32_t volume,
+           uint32_t symbol_id, uint32_t exchange_id, TraceConditions trace_condition) {
+  timestamp_ = timestamp;
+  price_ = price;
+  volume_ = volume;
+
+  symbol_id_ = symbol_id;
+  exchange_id_ = exchange_id;
+  trace_condition_ = trace_condition;
+}
+
 auto Tick::operator==(const Tick &other) const noexcept -> bool {
   return check_equality_(other);
 }

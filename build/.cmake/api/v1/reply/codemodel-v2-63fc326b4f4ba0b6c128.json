@@ -103,21 +103,21 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "bolt::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-bolt-4b33f6c2e109386979b7.json",
+					"jsonFile" : "target-bolt-6197545e18c85537894e.json",
 					"name" : "bolt",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 1,
 					"id" : "src::@145eef247bfb46b6828c",
-					"jsonFile" : "target-src-7e57cf5e505354da4eb6.json",
+					"jsonFile" : "target-src-769616f15464bbfaabbb.json",
 					"name" : "src",
 					"projectIndex" : 1
 				},
 				{
 					"directoryIndex" : 2,
 					"id" : "tests::@a44f0ac069e85531cdee",
-					"jsonFile" : "target-tests-36463ff19690f6514bc5.json",
+					"jsonFile" : "target-tests-3eb7c61654d06a2d2f4a.json",
 					"name" : "tests",
 					"projectIndex" : 2
 				}
@@ -127,8 +127,8 @@
 	"kind" : "codemodel",
 	"paths" : 
 	{
-		"build" : "/Users/karan/Development/bolt/build",
-		"source" : "/Users/karan/Development/bolt"
+		"build" : "/home/karan/Documents/Code/bolt/build",
+		"source" : "/home/karan/Documents/Code/bolt"
 	},
 	"version" : 
 	{
