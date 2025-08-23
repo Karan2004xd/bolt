@@ -5,6 +5,7 @@ include_directories(${GTest_INCLUDE_DIRS})
 
 set(TEST_SOURCES
   "./tick_test.cpp"
+  "./ring_buffer_test.cpp"
 )
 
 add_executable(${PROJECT_NAME} ${TEST_SOURCES})

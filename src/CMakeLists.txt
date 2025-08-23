@@ -2,6 +2,7 @@ project(src)
 
 add_library(${PROJECT_NAME}
   "./tick.cpp"
+  "./ring_buffer.cpp"
 )
 
 target_link_directories(
