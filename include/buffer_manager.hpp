@@ -30,18 +30,24 @@ public:
   auto Insert(const list<Tick> &ticks) noexcept -> void;
   auto Insert(const std::vector<Tick> &ticks) noexcept -> void;
 
-  auto GetState() noexcept -> std::shared_ptr<State>;
+  auto GetState() const noexcept -> std::shared_ptr<const State>;
 
 private:
   int32_t maximum_sealed_buffers_;
   int32_t maximum_buffer_size_;
+  mutable std::mutex background_mutex_;
 
   ThreadPool &pool_;
 
-  std::atomic<ptr<sealed_list>> sealed_buffers_ {
+  ptr<sealed_list> sealed_buffers_ {
     std::make_shared<sealed_list>()
   };
-  ptr<Buffer> active_buffer_ = std::make_shared<Buffer>();
 
-  auto InsertBase_(const std::vector<Tick> &ticks) noexcept -> void;
+  ptr<Buffer> active_buffer_ = std::make_shared<Buffer>();
+  std::atomic<ptr<const State>> current_state_ = {
+    std::make_shared<const State>()
+  };
+
+  auto InsertBase_(const Tick &tick) noexcept -> void;
+  auto SetNewState_(ptr<Buffer> &&new_sealed_buffer) noexcept -> void;
 };

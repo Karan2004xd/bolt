@@ -8,61 +8,62 @@
 using namespace Constants;
 
 BufferManager::BufferManager(ThreadPool &pool) : pool_(pool) {
-  maximum_sealed_buffers_ = ::kMAXIMUM_SEALED_BUFFERS_;
-  maximum_buffer_size_ = ::kMAXIMUM_SEALED_BUFFER_SIZE_;
+  maximum_sealed_buffers_ = ::kMAXIMUM_SEALED_BUFFERS;
+  maximum_buffer_size_ = ::kMAXIMUM_SEALED_BUFFER_SIZE;
 }
 
 BufferManager::BufferManager(const list<Tick> &ticks,
                              ThreadPool &pool) : pool_(pool) {
-  maximum_sealed_buffers_ = ::kMAXIMUM_SEALED_BUFFERS_;
-  maximum_buffer_size_ = ::kMAXIMUM_SEALED_BUFFER_SIZE_;
-  InsertBase_(ticks);
+  maximum_sealed_buffers_ = ::kMAXIMUM_SEALED_BUFFERS;
+  maximum_buffer_size_ = ::kMAXIMUM_SEALED_BUFFER_SIZE;
+
+  for (const auto &tick : ticks) {
+    InsertBase_(tick);
+  }
 }
 
 auto BufferManager::Insert(const list<Tick> &ticks) noexcept -> void {
-  InsertBase_(ticks);
+  for (const auto &tick : ticks) {
+    InsertBase_(tick);
+  }
 }
 
 auto BufferManager::Insert(const std::vector<Tick> &ticks) noexcept -> void {
-  InsertBase_(ticks);
-}
-
-auto BufferManager::GetState() noexcept -> std::shared_ptr<State> {
-  auto sealed_buffers = sealed_buffers_.load(std::memory_order_acquire);
-  auto active_buffer = active_buffer_;
-
-  return std::make_shared<State>(active_buffer, sealed_buffers);
-}
-
-auto BufferManager::InsertBase_(const std::vector<Tick> &ticks) noexcept -> void {
   for (const auto &tick : ticks) {
+    InsertBase_(tick);
+  }
+}
 
-    if (active_buffer_->Size() >= size_t(maximum_buffer_size_)) {
-      auto func = [&, buffer_to_seal = std::make_shared<Buffer>(active_buffer_->Copy())]() {
+auto BufferManager::GetState() const noexcept -> std::shared_ptr<const State> {
+  return current_state_.load(std::memory_order_acquire);
+}
 
-        buffer_to_seal->Sort();
-        auto curr_sealed_buffers = sealed_buffers_.load(std::memory_order_acquire);
+auto BufferManager::SetNewState_(ptr<Buffer> &&new_sealed_buffer) noexcept -> void {
+  auto new_state = std::shared_ptr<State>();
+  {
+    auto lock = std::unique_lock<std::mutex>(background_mutex_);
+    sealed_buffers_->emplace_back(std::move(new_sealed_buffer));
 
-        while (true) {
-          auto new_sealed_buffers = std::make_shared<sealed_list>(*curr_sealed_buffers);
-          new_sealed_buffers->emplace_back(std::move(buffer_to_seal));
-
-          if (curr_sealed_buffers->size() >= size_t(maximum_sealed_buffers_)) {
-            new_sealed_buffers->pop_front();
-          }
-
-          if (sealed_buffers_.compare_exchange_weak(curr_sealed_buffers,
-                                                    new_sealed_buffers,
-                                                    std::memory_order_release,
-                                                    std::memory_order_acquire)) {
-            break;
-          }
-        }
-      };
-
-      pool_.AssignTask(std::move(func));
-      active_buffer_ = std::make_shared<Buffer>();
+    if (sealed_buffers_->size() >= size_t(maximum_sealed_buffers_)) {
+      sealed_buffers_->pop_front();
     }
-    active_buffer_->InsertTick(tick);
+    new_state = std::make_shared<State>(active_buffer_, sealed_buffers_);
+  }
+  current_state_.store(std::move(new_state), std::memory_order_acquire);
+}
+
+auto BufferManager::InsertBase_(const Tick &tick) noexcept -> void {
+  active_buffer_->InsertTick(tick);
+
+  if (active_buffer_->Size() >= size_t(maximum_buffer_size_)) {
+    auto buffer_to_seal = std::make_shared<Buffer>(maximum_buffer_size_);
+    std::swap(active_buffer_, buffer_to_seal);
+
+    auto sealing_task = [this, sealed_buffer = std::move(buffer_to_seal)]() mutable {
+      sealed_buffer->Sort();
+      SetNewState_(std::move(sealed_buffer));
+    };
+
+    pool_.AssignTask(std::move(sealing_task));
   }
 }
