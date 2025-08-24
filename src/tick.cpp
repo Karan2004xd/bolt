@@ -1,5 +1,7 @@
 #include "../include/tick.hpp"
+#include <cmath>
 #include <cstring>
+#include <limits>
 
 Tick::Tick(uint64_t timestamp, double price, uint32_t volume)
   : timestamp_(timestamp), price_(price), volume_(volume) {}
@@ -80,11 +82,14 @@ auto Tick::Deserialize(const char *buffer) -> void {
 }
 
 auto Tick::check_equality_(const Tick &other) const noexcept -> bool {
+  constexpr double epsilon = std::numeric_limits<double>::epsilon();
+
   if (other.timestamp_ != timestamp_) return false;
   if (other.symbol_id_ != symbol_id_) return false;
   if (other.exchange_id_ != exchange_id_) return false;
-  if (other.price_ != price_) return false;
   if (other.volume_ != volume_) return false;
   if (other.trace_condition_ != trace_condition_) return false;
+
+  if (std::fabs(price_ - other.price_) > epsilon) return false;
   return true;
 }

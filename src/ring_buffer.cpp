@@ -1,45 +1,57 @@
 #include "../include/ring_buffer.hpp"
 #include "../include/tick.hpp"
+#include "../include/constants.hpp"
+
+using namespace Constants;
 
 RingBuffer::RingBuffer() : reader_(0), writer_(0) {
-  buffer_.resize(kBUFFER_SIZE_);
+  ring_buffer_size_ = ::kRING_BUFFER_SIZE;
+  buffer_.resize(ring_buffer_size_);
 }
 
 auto RingBuffer::Insert(const Tick &tick) noexcept -> bool {
-  if (IsFull_()) return false;
+  uint64_t writer_pos;
 
-  const auto &[_, writer_point] = GetReaderAndWriter_();
-  buffer_[writer_point] = tick;
+  do {
+    writer_pos = writer_.load(std::memory_order_acquire);
+    auto reader_pos = reader_.load(std::memory_order_acquire);
 
-  auto next_point = (writer_point + 1) % kBUFFER_SIZE_;
-  writer_.store(next_point, std::memory_order_release);
+    if (writer_pos - reader_pos == ring_buffer_size_) {
+      return false;
+    }
+  } while (!writer_.compare_exchange_weak(writer_pos,
+                                          writer_pos + 1,
+                                          std::memory_order_release,
+                                          std::memory_order_relaxed));
 
+  auto index = writer_pos % ring_buffer_size_;
+  buffer_[index] = tick;
   return true;
 }
 
 auto RingBuffer::Read() noexcept -> std::optional<Tick> {
-  if (IsEmpty_()) return std::nullopt;
-  const auto &[reader_point, _] = GetReaderAndWriter_();
-  auto tick = buffer_[reader_point];
+  auto writer_pos = writer_.load(std::memory_order_acquire);
+  auto reader_pos = reader_.load(std::memory_order_acquire);
 
-  auto next_point = (reader_point + 1) % kBUFFER_SIZE_;
-  reader_.store(next_point, std::memory_order_release);
+  if (writer_pos == reader_pos) {
+    return std::nullopt;
+  }
+
+  auto index = reader_pos % ring_buffer_size_;
+
+  auto tick = buffer_[index];
+  reader_.fetch_add(1, std::memory_order_acq_rel);
   return tick;
 }
 
-auto RingBuffer::IsEmpty_() const noexcept -> bool {
-  const auto &[reader_point, writer_point] = GetReaderAndWriter_();
-  return reader_point == writer_point;
+auto RingBuffer::IsEmpty() const noexcept -> bool {
+  auto writer_pos = writer_.load(std::memory_order_acquire);
+  auto reader_pos = reader_.load(std::memory_order_acquire);
+  return writer_pos == reader_pos;
 }
 
-auto RingBuffer::IsFull_() const noexcept -> bool {
-  const auto &[reader_point, writer_point] = GetReaderAndWriter_();
-  return ((writer_point + 1) % kBUFFER_SIZE_) == reader_point;
-}
-
-auto RingBuffer::GetReaderAndWriter_() const noexcept
-  -> std::pair<int32_t, int32_t> {
-  auto reader_point = reader_.load(std::memory_order_acquire);
-  auto writer_point = writer_.load(std::memory_order_acquire);
-  return {reader_point, writer_point};
+auto RingBuffer::IsFull() const noexcept -> bool {
+  auto writer_pos = writer_.load(std::memory_order_acquire);
+  auto reader_pos = reader_.load(std::memory_order_acquire);
+  return writer_pos - reader_pos >= ring_buffer_size_;
 }

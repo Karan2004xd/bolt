@@ -15,13 +15,12 @@ public:
   auto Insert(const Tick &tick) noexcept -> bool;
   auto Read() noexcept -> std::optional<Tick>;
 
+  auto IsEmpty() const noexcept -> bool;
+  auto IsFull() const noexcept -> bool;
+
 private:
   std::vector<Tick> buffer_;
-  static constexpr int32_t kBUFFER_SIZE_ = 64000;
+  size_t ring_buffer_size_;
 
-  std::atomic<int32_t> reader_, writer_;
-
-  auto IsEmpty_() const noexcept -> bool;
-  auto IsFull_() const noexcept -> bool;
-  auto GetReaderAndWriter_() const noexcept -> std::pair<int32_t, int32_t>;
+  std::atomic<uint64_t> reader_, writer_;
 };

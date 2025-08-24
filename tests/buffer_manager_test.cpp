@@ -3,12 +3,16 @@
 #include "../include/thread_pool.hpp"
 #include "../include/tick.hpp"
 #include "../include/buffer.hpp"
+#include "../include/state.hpp"
 
-class BufferManagerTest {
+class BufferManagerTest : public ::testing::Test {
 public:
+  BufferManagerTest() {
+    pool_ = std::make_unique<ThreadPool>();
+  }
+
   static auto simple_insert_test() -> void {
-    auto pool = std::make_unique<ThreadPool>();
-    auto manager = BufferManager(*pool);
+    auto manager = BufferManager(*pool_);
     manager.maximum_sealed_buffers_ = 5;
 
     auto ticks = std::vector<Tick>{};
@@ -22,8 +26,7 @@ public:
   }
 
   static auto trigger_sealing_test() -> void {
-    auto pool = std::make_unique<ThreadPool>();
-    auto manager = BufferManager(*pool);
+    auto manager = BufferManager(*pool_);
     manager.maximum_buffer_size_ = 5;
 
     auto ticks = std::vector<Tick>{};
@@ -40,8 +43,7 @@ public:
   }
 
   static auto eviction_occurs() -> void {
-    auto pool = std::make_unique<ThreadPool>();
-    auto manager = BufferManager(*pool);
+    auto manager = BufferManager(*pool_);
     manager.maximum_buffer_size_ = 2;
     manager.maximum_sealed_buffers_ = 2;
 
@@ -57,16 +59,44 @@ public:
     auto sealed = manager.sealed_buffers_.load();
     EXPECT_LE(sealed->size(), 2);
   }
+
+  static auto get_state_test() -> void {
+    auto manager = BufferManager(*pool_);
+    manager.Insert({
+      Tick(10, 1.1, 1)
+    });
+
+    auto original_state = State(manager.active_buffer_, manager.sealed_buffers_);
+    auto state = manager.GetState();
+    EXPECT_TRUE(original_state == *state);
+
+    manager.Insert({
+      Tick(10, 1.1, 1)
+    });
+
+    original_state = State(manager.active_buffer_, manager.sealed_buffers_);
+    state = manager.GetState();
+    EXPECT_TRUE(original_state == *state);
+  }
+
+private:
+  static std::unique_ptr<ThreadPool> pool_;
 };
 
-TEST(BufferManagerTest, SimpleInsertTest) {
+std::unique_ptr<ThreadPool> BufferManagerTest::pool_;
+
+TEST_F(BufferManagerTest, SimpleInsertTest) {
   BufferManagerTest::simple_insert_test();
 }
 
-TEST(BufferManagerTest, TriggerSealingTest) {
+TEST_F(BufferManagerTest, TriggerSealingTest) {
   BufferManagerTest::trigger_sealing_test();
 }
 
-TEST(BufferManagerTest, EvictionOccursTest) {
+TEST_F(BufferManagerTest, EvictionOccursTest) {
   BufferManagerTest::eviction_occurs();
+}
+
+TEST_F(BufferManagerTest, GetStateTest) {
+  BufferManagerTest::get_state_test();
 }

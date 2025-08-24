@@ -26,6 +26,9 @@ public:
   auto operator=(const State &other) -> State &;
   auto operator=(State &&other) noexcept -> State &;
 
+  auto operator==(const State &other) const noexcept -> bool;
+  auto operator!=(const State &other) const noexcept -> bool;
+
   auto SetSealedBuffer(const ptr<sealed_list> &sealed_buffers) noexcept -> void;
   auto SetActiveBuffer(std::shared_ptr<Buffer> active_buffer) noexcept -> void;
 
@@ -38,4 +41,5 @@ private:
 
   auto CopyFrom_(const State &other) -> void;
   auto MoveFrom_(State &&other) noexcept -> void;
+  auto EqualityCheck_(const State &other) const noexcept -> bool;
 };

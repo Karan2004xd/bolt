@@ -25,6 +25,14 @@ auto State::operator=(State &&other) noexcept -> State & {
   return *this;
 }
 
+auto State::operator==(const State &other) const noexcept -> bool {
+  return EqualityCheck_(other);
+}
+
+auto State::operator!=(const State &other) const noexcept -> bool {
+  return !EqualityCheck_(other);
+}
+
 auto State::SetSealedBuffer(const ptr<sealed_list> &sealed_buffers) noexcept -> void {
   sealed_buffers_ = sealed_buffers;
 }
@@ -49,4 +57,10 @@ auto State::CopyFrom_(const State &other) -> void {
 auto State::MoveFrom_(State &&other) noexcept -> void {
   sealed_buffers_ = std::move(other.sealed_buffers_);
   active_buffer_ = std::move(other.active_buffer_);
+}
+
+auto State::EqualityCheck_(const State &other) const noexcept -> bool {
+  if (*other.sealed_buffers_ != *sealed_buffers_) return false;
+  if (*other.active_buffer_ != *active_buffer_) return false;
+  return true;
 }
