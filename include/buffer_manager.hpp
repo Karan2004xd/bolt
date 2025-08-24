@@ -4,6 +4,7 @@
 #include <atomic>
 #include <deque>
 #include <memory>
+#include <vector>
 
 class Buffer;
 class Tick;
@@ -27,18 +28,20 @@ public:
   BufferManager(const list<Tick> &ticks, ThreadPool &pool);
 
   auto Insert(const list<Tick> &ticks) noexcept -> void;
+  auto Insert(const std::vector<Tick> &ticks) noexcept -> void;
+
   auto GetState() noexcept -> std::shared_ptr<State>;
 
 private:
-  static constexpr int16_t kMAXIMUM_SEALED_BUFFERS_ = 100;
-  static constexpr int16_t kMAXIMUM_SEALED_BUFFER_SIZE_ = 10000;
+  int32_t maximum_sealed_buffers_;
+  int32_t maximum_buffer_size_;
 
   ThreadPool &pool_;
 
   std::atomic<ptr<sealed_list>> sealed_buffers_ {
     std::make_shared<sealed_list>()
   };
-  ptr<Buffer> active_buffer_ {nullptr};
+  ptr<Buffer> active_buffer_ = std::make_shared<Buffer>();
 
-  auto InsertBase_(const list<Tick> &ticks) noexcept -> void;
+  auto InsertBase_(const std::vector<Tick> &ticks) noexcept -> void;
 };

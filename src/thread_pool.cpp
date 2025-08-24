@@ -8,7 +8,7 @@ ThreadPool::ThreadPool() : stop_workers_(false) {
   }
 }
 
-auto ThreadPool::StopWorkers() noexcept -> void {
+auto ThreadPool::Wait() noexcept -> void {
   StopWorkersBase_();
 }
 

@@ -38,7 +38,7 @@ public:
       }));
     }
 
-    pool.StopWorkers();
+    pool.Wait();
     EXPECT_TRUE(pool.stop_workers_);
     EXPECT_EQ(results.size(), n);
   }

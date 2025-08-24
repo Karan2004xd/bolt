@@ -39,7 +39,7 @@ public:
     return future_obj;
   }
 
-  auto StopWorkers() noexcept -> void;
+  auto Wait() noexcept -> void;
 
   ~ThreadPool();
 
