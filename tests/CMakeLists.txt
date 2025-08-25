@@ -10,12 +10,14 @@ set(TEST_SOURCES
   "./buffer_test.cpp"
   "./buffer_manager_test.cpp"
   "./state_test.cpp"
+  "./database_test.cpp"
 )
 
 add_executable(${PROJECT_NAME} ${TEST_SOURCES})
 target_link_libraries(
   ${PROJECT_NAME} ${GTest_LIBRARIES}
-  GTest::GTest GTest::Main src
+  GTest::GTest GTest::Main
+  bolt_lib
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE UNIT_TESTING)

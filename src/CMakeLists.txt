@@ -1,4 +1,4 @@
-project(src)
+project(bolt_lib)
 
 add_library(${PROJECT_NAME}
   "./tick.cpp"
@@ -7,6 +7,7 @@ add_library(${PROJECT_NAME}
   "./buffer.cpp"
   "./buffer_manager.cpp"
   "./state.cpp"
+  "./database.cpp"
 )
 
 target_link_directories(
