@@ -1,7 +1,6 @@
 #pragma once
 
 #include "macros.hpp"
-#include <atomic>
 #include <mutex>
 #include <deque>
 #include <memory>
@@ -14,6 +13,7 @@ class State;
 
 class BufferManager {
   TEST_FRIEND(BufferManagerTest);
+  TEST_FRIEND(DatabaseTest);
 
 public:
   template <typename T>
@@ -36,12 +36,10 @@ private:
 
   ThreadPool &pool_;
 
-  ptr<sealed_list> sealed_buffers_ {
-    std::make_shared<sealed_list>()
-  };
+  ptr<sealed_list> sealed_buffers_;
 
-  ptr<Buffer> active_buffer_ = std::make_shared<Buffer>();
-  ptr<const State> current_state_;
+  ptr<Buffer> active_buffer_;
+  std::atomic<ptr<const State>> current_state_;
 
   auto InsertBase_(const Tick &tick) noexcept -> void;
   auto SetNewState_(ptr<Buffer> &&new_sealed_buffer) noexcept -> void;

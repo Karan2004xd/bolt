@@ -4,7 +4,6 @@
 #include <future>
 #include <queue>
 #include <functional>
-#include <thread>
 
 class ThreadPool {
   TEST_FRIEND(ThreadPoolTest);
@@ -35,20 +34,21 @@ public:
     {
       auto lock = std::unique_lock<std::mutex>(pool_mutex_);
       tasks_.push(std::move(task_to_add));
+      condition_to_allow_.notify_one();
     }
-    condtion_to_allow_.notify_one();
     return future_obj;
   }
 
-  auto Wait() noexcept -> void;
+  auto Restart() noexcept -> void;
+  auto Shutdown() noexcept -> void;
 
   ~ThreadPool();
 
 private:
-  const int8_t kNUMBER_OF_THREADS = std::thread::hardware_concurrency();
-
+  int8_t number_of_threads_;
   mutable std::mutex pool_mutex_;
-  std::condition_variable condtion_to_allow_;
+
+  std::condition_variable condition_to_allow_;
   std::atomic<bool> stop_workers_;
 
   std::queue<std::function<void()>> tasks_;
@@ -56,4 +56,5 @@ private:
 
   auto StartWorker_() noexcept -> void;
   auto StopWorkersBase_() noexcept -> void;
+  auto StartPoolBase_() noexcept -> void;
 };

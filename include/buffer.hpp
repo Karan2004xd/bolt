@@ -11,15 +11,12 @@ class Buffer {
 
 public:
   template <typename T>
-  using param_list = std::initializer_list<T>;
-
-  template <typename T>
   using list_cref = const std::vector<T> &;
 
   Buffer() = default;
 
   Buffer(size_t reserve_capacity);
-  Buffer(const param_list<Tick> &ticks);
+  Buffer(const std::vector<Tick> &ticks);
 
   Buffer(const Buffer &other);
   Buffer(Buffer &&other) noexcept;
@@ -44,6 +41,8 @@ public:
   auto Sort(bool ascending = true) noexcept -> void;
   auto Copy() const noexcept -> Buffer;
 
+  auto IsSorted() const noexcept -> bool;
+
 private:
   std::vector<uint64_t> timestamps_;
   std::vector<uint32_t> symbol_ids_;
@@ -53,8 +52,9 @@ private:
   std::vector<TraceConditions> trace_conditions_;
 
   uint64_t size_ {};
+  bool is_sorted_ {true};
 
-  auto StoreData_(const param_list<Tick> &ticks) noexcept -> void;
+  auto StoreData_(const std::vector<Tick> &ticks) noexcept -> void;
   auto EqualityCheck_(const Buffer &other) const noexcept -> bool;
 
   auto CopyFrom_(const Buffer &other) -> void;

@@ -13,7 +13,7 @@ Buffer::Buffer(size_t reserve_capacity) {
   trace_conditions_.reserve(reserve_capacity);
 }
 
-Buffer::Buffer(const param_list<Tick> &ticks) {
+Buffer::Buffer(const std::vector<Tick> &ticks) {
   StoreData_(ticks);
 }
 
@@ -41,19 +41,6 @@ auto Buffer::operator==(const Buffer &other) const noexcept -> bool {
 
 auto Buffer::operator!=(const Buffer &other) const noexcept -> bool {
   return !EqualityCheck_(other);
-}
-
-auto Buffer::StoreData_(const param_list<Tick> &ticks) noexcept -> void {
-  for (const auto &tick : ticks) {
-    timestamps_.push_back(tick.GetTimestamp());
-    prices_.push_back(tick.GetPrice());
-    volumes_.push_back(tick.GetVolume());
-
-    symbol_ids_.push_back(tick.GetSymbolId());
-    exchange_ids_.push_back(tick.GetExchangeId());
-    trace_conditions_.push_back(tick.GetTraceCondtion());
-    size_++;
-  }
 }
 
 auto Buffer::GetTimestamps() const noexcept -> list_cref<uint64_t> {
@@ -120,6 +107,10 @@ auto Buffer::Sort(bool ascending) noexcept -> void {
   trace_conditions_ = std::move(temp_buffer.trace_conditions_);
 }
 
+auto Buffer::IsSorted() const noexcept -> bool {
+  return is_sorted_;
+}
+
 auto Buffer::Copy() const noexcept -> Buffer {
   return {*this};
 }
@@ -146,6 +137,7 @@ auto Buffer::CopyFrom_(const Buffer &other) -> void {
   trace_conditions_ = other.trace_conditions_;
 
   size_ = other.size_;
+  is_sorted_ = other.is_sorted_;
 }
 
 auto Buffer::MoveFrom_(Buffer &&other) noexcept -> void {
@@ -156,7 +148,26 @@ auto Buffer::MoveFrom_(Buffer &&other) noexcept -> void {
   symbol_ids_ = std::move(other.symbol_ids_);
   exchange_ids_ = std::move(other.exchange_ids_);
   trace_conditions_ = std::move(other.trace_conditions_);
-
+  is_sorted_ = other.is_sorted_;
   size_ = other.size_;
+
   other.size_ = {};
+  other.is_sorted_ = true;
+}
+
+auto Buffer::StoreData_(const std::vector<Tick> &ticks) noexcept -> void {
+  for (const auto &tick : ticks) {
+    if (!timestamps_.empty() && is_sorted_) {
+      if (timestamps_.back() > tick.GetTimestamp()) is_sorted_ = false;
+    }
+
+    timestamps_.push_back(tick.GetTimestamp());
+    prices_.push_back(tick.GetPrice());
+    volumes_.push_back(tick.GetVolume());
+
+    symbol_ids_.push_back(tick.GetSymbolId());
+    exchange_ids_.push_back(tick.GetExchangeId());
+    trace_conditions_.push_back(tick.GetTraceCondtion());
+    size_++;
+  }
 }

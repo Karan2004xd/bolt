@@ -174,6 +174,24 @@ public:
     check_buffer_equality_(buffer, buffer.Copy());
   }
 
+  static auto is_sorted_test() -> void {
+    auto buffer = Buffer({
+      Tick(1001, 100.01, 100),
+      Tick(1002, 100.02, 101),
+    });
+
+    EXPECT_TRUE(buffer.IsSorted());
+
+    buffer = Buffer({
+      Tick(1001, 100.01, 100),
+      Tick(1002, 100.02, 101),
+      Tick(1000, 100.02, 101),
+      Tick(1003, 100.02, 101)
+    });
+
+    EXPECT_FALSE(buffer.IsSorted());
+  }
+
 private:
   static auto check_buffer_tick_equality_(const Buffer &buffer,
                                           const std::vector<Tick> &ticks) -> void {
@@ -201,6 +219,8 @@ private:
     check_columns_equality_(buffer1.symbol_ids_, buffer2.symbol_ids_);
     check_columns_equality_(buffer1.exchange_ids_, buffer2.exchange_ids_);
     check_columns_equality_(buffer1.trace_conditions_, buffer2.trace_conditions_);
+
+    EXPECT_EQ(buffer1.is_sorted_, buffer2.is_sorted_);
   }
 
   template <typename T>
@@ -236,4 +256,8 @@ TEST(BufferTest, SortTest) {
 
 TEST(BufferTest, CopyMethodTest) {
   BufferTest::copy_test();
+}
+
+TEST(BufferTest, IsSortedTest) {
+  BufferTest::is_sorted_test();
 }

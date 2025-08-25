@@ -10,6 +10,10 @@ using namespace Constants;
 BufferManager::BufferManager(ThreadPool &pool) : pool_(pool) {
   maximum_sealed_buffers_ = ::kMAXIMUM_SEALED_BUFFERS;
   maximum_buffer_size_ = ::kMAXIMUM_SEALED_BUFFER_SIZE;
+
+  current_state_ = std::make_shared<const State>();
+  sealed_buffers_ = std::make_shared<sealed_list>();
+  active_buffer_ = std::make_shared<Buffer>();
 }
 
 auto BufferManager::Insert(const Tick &tick) noexcept -> void {
@@ -23,7 +27,7 @@ auto BufferManager::Insert(const std::vector<Tick> &ticks) noexcept -> void {
 }
 
 auto BufferManager::GetState() const noexcept -> std::shared_ptr<const State> {
-  return std::atomic_load(&current_state_);
+  return current_state_.load(std::memory_order_acquire);
 }
 
 auto BufferManager::SetNewState_(ptr<Buffer> &&new_sealed_buffer) noexcept -> void {
@@ -39,7 +43,7 @@ auto BufferManager::SetNewState_(ptr<Buffer> &&new_sealed_buffer) noexcept -> vo
     }
     new_state = std::make_shared<const State>(active_buffer_, sealed_buffers_);
   }
-  std::atomic_store(&current_state_, std::move(new_state));
+  current_state_.store(std::move(new_state), std::memory_order_acquire);
 }
 
 auto BufferManager::InsertBase_(const Tick &tick) noexcept -> void {
@@ -50,7 +54,9 @@ auto BufferManager::InsertBase_(const Tick &tick) noexcept -> void {
     std::swap(active_buffer_, buffer_to_seal);
 
     auto sealing_task = [this, sealed_buffer = std::move(buffer_to_seal)]() mutable {
-      sealed_buffer->Sort();
+      if (!sealed_buffer->IsSorted()) {
+        sealed_buffer->Sort();
+      }
       SetNewState_(std::move(sealed_buffer));
     };
     pool_.AssignTask(std::move(sealing_task));
