@@ -42,35 +42,33 @@ public:
     auto active_buffer = Buffer({Tick(101, 10.11, 20)});
 
     auto state = State(
-      std::make_shared<Buffer>(active_buffer.Copy()),
+      std::make_shared<Buffer>(active_buffer),
       std::make_shared<State::sealed_list>(sealed_buffer)
     );
     sealed_buffer.push_back(sealed_buffer.back());
 
     auto state2 = State(
-      std::make_shared<Buffer>(active_buffer.Copy()),
+      std::make_shared<Buffer>(active_buffer),
       std::make_shared<State::sealed_list>(sealed_buffer)
     );
 
     // Copy Semantics Test
     auto state3 = State(state);
-    check_state_equality_(state3, state);
+    EXPECT_TRUE(state3 == state);
 
     state3 = state2;
-    check_state_equality_(state3, state2);
+    EXPECT_TRUE(state3 == state2);
 
     // Move Semantics
     state3 = state;
 
     state2 = std::move(state);
-    check_state_equality_(state2, state3);
-    check_state_equality_(state, State());
+    EXPECT_TRUE(state2 == state3);
 
     state3 = state2;
 
     state = std::move(state2);
-    check_state_equality_(state, state3);
-    check_state_equality_(state2, State());
+    EXPECT_TRUE(state == state3);
   }
 
   static auto getters_test() -> void {
@@ -103,35 +101,28 @@ public:
       std::make_shared<State::sealed_list>(sealed_buffer)
     );
 
-    state.SetActiveBuffer(std::make_shared<Buffer>());
+    state.active_buffer_ = std::make_shared<Buffer>();
     EXPECT_FALSE(*state.active_buffer_ == active_buffer);
 
-    state.SetSealedBuffer(std::make_shared<State::sealed_list>());
+    state.sealed_buffers_ = std::make_shared<State::sealed_list>();
     EXPECT_EQ(state.sealed_buffers_->size(), 0);
   }
 
   static auto equality_operator_test() -> void {
-    auto sealed_buffer = State::sealed_list{
+    auto sealed_buffer = std::make_shared<State::sealed_list>(State::sealed_list{
       std::make_shared<Buffer>(
         Buffer({Tick(100, 10.10, 10)})
       )
-    };
-    auto active_buffer = Buffer({Tick(101, 10.11, 20)});
+    });
+    auto active_buffer = std::make_shared<Buffer>(Buffer({Tick(101, 10.11, 20)}));
 
-    auto state = State(
-      std::make_shared<Buffer>(active_buffer.Copy()),
-      std::make_shared<State::sealed_list>(sealed_buffer)
-    );
-
-    auto state2 = State(
-      std::make_shared<Buffer>(active_buffer.Copy()),
-      std::make_shared<State::sealed_list>(sealed_buffer)
-    );
+    auto state = State(active_buffer, sealed_buffer);
+    auto state2 = State(active_buffer, sealed_buffer);
 
     EXPECT_TRUE(state == state2);
     EXPECT_FALSE(state != state2);
 
-    state2.SetActiveBuffer(std::make_shared<Buffer>(Buffer({Tick(102, 1.1, 20)})));
+    state2.active_buffer_ = std::make_shared<Buffer>(Buffer({Tick(102, 1.1, 20)}));
     EXPECT_TRUE(state != state2);
     EXPECT_FALSE(state == state2);
   }
@@ -144,13 +135,6 @@ private:
     for (size_t i = 0; i < buffers.size(); i++) {
       EXPECT_TRUE(buffers[i] == state.sealed_buffers_->at(i));
     }
-  }
-
-  static auto check_state_equality_(const State &state1,
-                                    const State &state2) -> void {
-    EXPECT_NE(&state1, &state2);
-    EXPECT_TRUE(state1.active_buffer_ == state2.active_buffer_);
-    EXPECT_TRUE(state1.sealed_buffers_ == state2.sealed_buffers_);
   }
 };
 

@@ -6,20 +6,21 @@
 #include "../include/buffer.hpp"
 #include "../include/state.hpp"
 
-std::shared_ptr<RingBuffer> Database::data_buffer_;
 std::unique_ptr<ThreadPool> Database::thread_pool_;
-std::unique_ptr<BufferManager> Database::storage_handler_;
+std::unique_ptr<RingBuffer> Database::data_buffer_;
+std::shared_ptr<BufferManager> Database::storage_handler_;
 
 Database::Database() {
-  data_buffer_ = std::make_shared<RingBuffer>();
+  data_buffer_ = std::make_unique<RingBuffer>();
   thread_pool_ = std::make_unique<ThreadPool>();
-  storage_handler_ = std::make_unique<BufferManager>(*thread_pool_);
+  storage_handler_ = std::make_shared<BufferManager>(*thread_pool_);
 
   StartInsertThread_();
 }
 
 Database::~Database() {
   stop_insert_thread_ = true;
+  data_added_to_buffer_.notify_all();
   thread_pool_->Wait();
 }
 
@@ -29,6 +30,14 @@ auto Database::Insert(const std::vector<Tick> &ticks) noexcept -> void {
 
 auto Database::Insert(const Tick &tick) noexcept -> void {
   InsertBase_({tick});
+}
+
+auto Database::Flush() noexcept -> void {
+  while (!data_buffer_->IsEmpty()) {
+    std::this_thread::yield();
+  }
+  stop_insert_thread_ = true;
+  thread_pool_->Wait();
 }
 
 auto Database::StartInsertThread_() noexcept -> void {
@@ -46,7 +55,7 @@ auto Database::StartInsertThread_() noexcept -> void {
         while (!(tick_opt = data_buffer_->Read())) {
           std::this_thread::yield();
         }
-        storage_handler_->Insert({*tick_opt});
+        storage_handler_->Insert(*tick_opt);
       }
     }
   });

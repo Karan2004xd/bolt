@@ -52,6 +52,8 @@ private:
   std::vector<uint32_t> volumes_;
   std::vector<TraceConditions> trace_conditions_;
 
+  uint64_t size_ {};
+
   auto StoreData_(const param_list<Tick> &ticks) noexcept -> void;
   auto EqualityCheck_(const Buffer &other) const noexcept -> bool;
 

@@ -66,17 +66,18 @@ public:
       Tick(10, 1.1, 1)
     });
 
-    auto original_state = State(manager.active_buffer_, manager.sealed_buffers_);
     auto state = manager.GetState();
-    // EXPECT_TRUE(original_state == *state);
+
+    EXPECT_EQ(state->GetActiveBuffer()->Size(), 1);
 
     manager.Insert({
-      Tick(10, 1.1, 1)
+      Tick(10, 1.1, 1),
+      Tick(101, 1.1, 1)
     });
 
-    original_state = State(manager.active_buffer_, manager.sealed_buffers_);
     state = manager.GetState();
-    // EXPECT_TRUE(original_state == *state);
+    EXPECT_EQ(state->GetActiveBuffer()->Size(), 3);
+    EXPECT_EQ(state->GetActiveBuffer()->GetTimestamps().back(), 101);
   }
 
 private:

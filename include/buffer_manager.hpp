@@ -21,14 +21,10 @@ public:
   using const_buffer = ptr<Buffer>;
   using sealed_list = std::deque<const_buffer>;
 
-  template <typename T>
-  using list = std::initializer_list<T>;
-
   BufferManager(ThreadPool &pool);
-  BufferManager(const list<Tick> &ticks, ThreadPool &pool);
 
-  auto Insert(const list<Tick> &ticks) noexcept -> void;
   auto Insert(const std::vector<Tick> &ticks) noexcept -> void;
+  auto Insert(const Tick &tick) noexcept -> void;
 
   auto GetState() const noexcept -> std::shared_ptr<const State>;
 

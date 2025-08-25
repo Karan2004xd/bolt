@@ -52,6 +52,7 @@ auto Buffer::StoreData_(const param_list<Tick> &ticks) noexcept -> void {
     symbol_ids_.push_back(tick.GetSymbolId());
     exchange_ids_.push_back(tick.GetExchangeId());
     trace_conditions_.push_back(tick.GetTraceCondtion());
+    size_++;
   }
 }
 
@@ -85,7 +86,7 @@ auto Buffer::InsertTick(const Tick &tick) noexcept -> void {
 }
 
 auto Buffer::Size() const noexcept -> size_t {
-  return timestamps_.size();
+  return size_;
 }
 
 auto Buffer::Sort(bool ascending) noexcept -> void {
@@ -143,6 +144,8 @@ auto Buffer::CopyFrom_(const Buffer &other) -> void {
   symbol_ids_ = other.symbol_ids_;
   exchange_ids_ = other.exchange_ids_;
   trace_conditions_ = other.trace_conditions_;
+
+  size_ = other.size_;
 }
 
 auto Buffer::MoveFrom_(Buffer &&other) noexcept -> void {
@@ -153,4 +156,7 @@ auto Buffer::MoveFrom_(Buffer &&other) noexcept -> void {
   symbol_ids_ = std::move(other.symbol_ids_);
   exchange_ids_ = std::move(other.exchange_ids_);
   trace_conditions_ = std::move(other.trace_conditions_);
+
+  size_ = other.size_;
+  other.size_ = {};
 }
