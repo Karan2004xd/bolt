@@ -4,6 +4,7 @@
 #include <future>
 #include <queue>
 #include <functional>
+#include <thread>
 
 class ThreadPool {
   TEST_FRIEND(ThreadPoolTest);
@@ -44,7 +45,7 @@ public:
   ~ThreadPool();
 
 private:
-  static constexpr int8_t kNUMBER_OF_THREADS = 4;
+  const int8_t kNUMBER_OF_THREADS = std::thread::hardware_concurrency();
 
   mutable std::mutex pool_mutex_;
   std::condition_variable condtion_to_allow_;

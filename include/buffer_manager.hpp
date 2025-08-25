@@ -2,6 +2,7 @@
 
 #include "macros.hpp"
 #include <atomic>
+#include <mutex>
 #include <deque>
 #include <memory>
 #include <vector>
@@ -40,9 +41,7 @@ private:
   };
 
   ptr<Buffer> active_buffer_ = std::make_shared<Buffer>();
-  std::atomic<ptr<const State>> current_state_ = {
-    std::make_shared<const State>()
-  };
+  ptr<const State> current_state_;
 
   auto InsertBase_(const Tick &tick) noexcept -> void;
   auto SetNewState_(ptr<Buffer> &&new_sealed_buffer) noexcept -> void;

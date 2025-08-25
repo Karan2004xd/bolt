@@ -23,11 +23,11 @@ auto BufferManager::Insert(const std::vector<Tick> &ticks) noexcept -> void {
 }
 
 auto BufferManager::GetState() const noexcept -> std::shared_ptr<const State> {
-  return current_state_.load(std::memory_order_acquire);
+  return std::atomic_load(&current_state_);
 }
 
 auto BufferManager::SetNewState_(ptr<Buffer> &&new_sealed_buffer) noexcept -> void {
-  auto new_state = std::shared_ptr<State>();
+  std::shared_ptr<const State> new_state;
   {
     auto lock = std::unique_lock<std::mutex>(background_mutex_);
     if (new_sealed_buffer) {
@@ -37,9 +37,9 @@ auto BufferManager::SetNewState_(ptr<Buffer> &&new_sealed_buffer) noexcept -> vo
         sealed_buffers_->pop_front();
       }
     }
-    new_state = std::make_shared<State>(active_buffer_, sealed_buffers_);
+    new_state = std::make_shared<const State>(active_buffer_, sealed_buffers_);
   }
-  current_state_.store(std::move(new_state), std::memory_order_release);
+  std::atomic_store(&current_state_, std::move(new_state));
 }
 
 auto BufferManager::InsertBase_(const Tick &tick) noexcept -> void {
@@ -56,6 +56,8 @@ auto BufferManager::InsertBase_(const Tick &tick) noexcept -> void {
     pool_.AssignTask(std::move(sealing_task));
 
   } else {
-    SetNewState_(nullptr);
+    pool_.AssignTask([this]{
+      SetNewState_(nullptr);
+    });
   }
 }

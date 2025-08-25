@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include "../include/ring_buffer.hpp"
 #include "../include/tick.hpp"
+#include <thread>
 
 class RingBufferTest {
 public:

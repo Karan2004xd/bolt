@@ -35,6 +35,7 @@ BENCHMARK(BM_SingleTickInsert);
 BENCHMARK(BM_BatchTickInsert)
   ->Arg(100)->Arg(1000)
   ->Arg(10000)->Arg(100000)
-  ->Arg(1000000)->Arg(2000000)->Arg(3000000);
+  ->Arg(1000000)->Arg(2000000)->Arg(3000000)
+  ->Arg(10000000)->Arg(50000000);
 
 BENCHMARK_MAIN();
