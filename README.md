@@ -65,7 +65,7 @@ Bolt is built using modern C++ features and requires a C++20 compliant compiler.
 
  ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/bolt.git
+git clone https://github.com/Karan2004xd/bolt.git
 cd bolt
 
 # Configure and build the project
