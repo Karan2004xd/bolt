@@ -9,3 +9,4 @@
 #include "tick.hpp"
 #include "database.hpp"
 #include "trade_conditions.hpp"
+#include "aggregate_result.hpp"
