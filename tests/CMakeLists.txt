@@ -11,6 +11,7 @@ set(TEST_SOURCES
   "./buffer_manager_test.cpp"
   "./state_test.cpp"
   "./database_test.cpp"
+  "./aggregate_result_test.cpp"
 )
 
 add_executable(${PROJECT_NAME} ${TEST_SOURCES})

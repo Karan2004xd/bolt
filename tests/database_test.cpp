@@ -4,6 +4,7 @@
 #include "../include/buffer_manager.hpp"
 #include "../include/buffer.hpp"
 #include "../include/state.hpp"
+#include "../include/aggregate_result.hpp"
 #include <algorithm>
 
 class DatabaseTest {
@@ -121,6 +122,58 @@ public:
     db.Flush();
   }
 
+  static auto aggregate_result_test() -> void {
+    auto db = Database();
+    db.Insert({
+      Tick(100, 100.0, 10),
+      Tick(101, 150.0, 20),
+      Tick(102, 120.0, 30),
+      Tick(103, 110.0, 60),
+      Tick(104, 130.0, 0)
+    });
+    db.Flush();
+
+    // Normal aggregation test
+    auto result = db.Aggregate(100, 102);
+    auto avg_price = (100.0 + 150.0 + 120.0) / 3;
+    auto vwap = (100.0*10 + 150.0*20 + 120.0*30) / 60.0;
+    
+    auto expected_result = AggregateResult(3, 60, 150.0, 100.0,
+                                           avg_price, vwap);
+    EXPECT_TRUE(result == expected_result);
+
+    // single tick range
+    result = db.Aggregate(101, 101);
+    expected_result = AggregateResult(1, 20, 150.0, 150.0, 150.0, 150.0);
+    EXPECT_TRUE(result == expected_result);
+
+    // empty range test
+    result = db.Aggregate(200, 300);
+    EXPECT_TRUE(result == AggregateResult());
+
+    // zero volume vwap
+    result = db.Aggregate(103, 104);
+    EXPECT_EQ(result.GetCount(), 2);
+    EXPECT_EQ(result.GetTotalVolume(), 60);
+    EXPECT_DOUBLE_EQ(result.GetVwap(), (110.0*60 + 130.0*0) / 60.0);
+
+    // Only a zero volume tick
+    result = db.Aggregate(104, 104);
+    EXPECT_EQ(result.GetCount(), 1);
+    EXPECT_EQ(result.GetTotalVolume(), 0);
+    EXPECT_DOUBLE_EQ(result.GetVwap(), 0.0);
+
+    // filtered aggregation
+    result = db.Aggregate(100, 105, [](const Tick &tick) {
+      return tick.GetVolume() > 50;
+    });
+
+    EXPECT_EQ(result.GetCount(), 1);
+    EXPECT_EQ(result.GetTotalVolume(), 60);
+    EXPECT_EQ(result.GetAvgPrice(), 110.0);
+    EXPECT_DOUBLE_EQ(result.GetVwap(), 110.0);
+  }
+
 private:
   static auto create_sorted_buffer(int64_t start_ts,
                                    int64_t step,
@@ -153,4 +206,8 @@ TEST(DatabaseTest, SealedBuffersTest) {
 
 TEST(DatabaseTest, SizeTest) {
   DatabaseTest::size_test();
+}
+
+TEST(DatabaseTest, AggregateResultTest) {
+  DatabaseTest::aggregate_result_test();
 }

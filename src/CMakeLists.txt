@@ -8,6 +8,7 @@ add_library(${PROJECT_NAME}
   "./buffer_manager.cpp"
   "./state.cpp"
   "./database.cpp"
+  "./aggregate_result.cpp"
 )
 
 target_link_directories(

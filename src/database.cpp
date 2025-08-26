@@ -6,6 +6,7 @@
 #include "../include/buffer.hpp"
 #include "../include/state.hpp"
 #include "../include/constants.hpp"
+#include "../include/aggregate_result.hpp"
 #include <algorithm>
 
 using namespace Constants;
@@ -39,16 +40,7 @@ auto Database::GetForRange(uint64_t start_ts, uint64_t end_ts)
   if (start_ts > end_ts) return {};
   const auto &state = storage_handler_->GetState();
 
-  auto [sealed_ticks_sorted, sealed_ticks] =
-    GetTicksFromSealedBuffer_(state, start_ts, end_ts);
-
-  auto [active_ticks_sorted, active_ticks] =
-    GetTicksFromActiveBuffer_(state, start_ts, end_ts);
-
-  return GetSortedTicks_(std::move(sealed_ticks),
-                         std::move(active_ticks),
-                         sealed_ticks_sorted,
-                         active_ticks_sorted);
+  return GetSortedTicks_(start_ts, end_ts, state);
 }
 
 auto Database::GetForRange(uint64_t start_ts,
@@ -59,16 +51,34 @@ auto Database::GetForRange(uint64_t start_ts,
   if (start_ts > end_ts) return {};
   const auto &state = storage_handler_->GetState();
 
-  auto [sealed_ticks_sorted, sealed_ticks] =
-    GetTicksFromSealedBuffer_(state, start_ts, end_ts, filter);
+  return GetSortedTicks_(start_ts, end_ts, state, filter);
+}
 
-  auto [active_ticks_sorted, active_ticks] =
-    GetTicksFromActiveBuffer_(state, start_ts, end_ts, filter);
+auto Database::Aggregate(uint64_t start_ts,
+                         uint64_t end_ts) -> AggregateResult {
 
-  return GetSortedTicks_(std::move(sealed_ticks),
-                         std::move(active_ticks),
-                         sealed_ticks_sorted,
-                         active_ticks_sorted);
+  if (start_ts > end_ts) return {};
+  const auto &state = storage_handler_->GetState();
+
+  auto sorted_ticks = GetSortedTicks_(start_ts, end_ts, state);
+  auto result = AggregateResult();
+
+  SetAggregateObj_(result, sorted_ticks);
+  return result;
+}
+
+auto Database::Aggregate(uint64_t start_ts,
+                         uint64_t end_ts,
+                         const filter_func &filter) -> AggregateResult {
+
+  if (start_ts > end_ts) return {};
+  const auto &state = storage_handler_->GetState();
+
+  auto sorted_ticks = GetSortedTicks_(start_ts, end_ts, state, filter);
+  auto result = AggregateResult();
+
+  SetAggregateObj_(result, sorted_ticks);
+  return result;
 }
 
 auto Database::Size() const noexcept -> size_t {
@@ -168,11 +178,16 @@ auto Database::CheckAndSetTick_(std::vector<Tick> &ticks,
   }
 }
 
+auto Database::GetSortedTicks_(
+  uint64_t start_ts, uint64_t end_ts,
+  const std::shared_ptr<const State> &state,
+  const filter_func &filter) -> std::vector<Tick> {
 
-auto Database::GetSortedTicks_(std::vector<Tick> &&sealed_ticks,
-                               std::vector<Tick> &&active_ticks,
-                               bool sealed_ticks_sorted,
-                               bool active_ticks_sorted) -> std::vector<Tick> {
+  auto [sealed_ticks_sorted, sealed_ticks] =
+    GetTicksFromSealedBuffer_(state, start_ts, end_ts, filter);
+
+  auto [active_ticks_sorted, active_ticks] =
+    GetTicksFromActiveBuffer_(state, start_ts, end_ts, filter);
 
   auto ticks = std::vector<Tick>();
   auto n = sealed_ticks.size() + active_ticks.size();
@@ -196,7 +211,7 @@ auto Database::GetSortedTicks_(std::vector<Tick> &&sealed_ticks,
     }
 
     while (j < sealed_ticks.size()) {
-      ticks.push_back(std::move(sealed_ticks[i]));
+      ticks.push_back(std::move(sealed_ticks[j]));
       j++;
     }
 
@@ -247,4 +262,38 @@ auto Database::InsertBase_(const std::vector<Tick> &ticks) noexcept -> void {
     data_buffer_->Insert(tick);
   }
   data_added_to_buffer_.notify_one();
+}
+
+auto Database::SetAggregateObj_(
+  AggregateResult &result,
+  const std::vector<Tick> &sorted_ticks) const noexcept -> void {
+
+  auto at_start = true;
+
+  for (const auto &tick : sorted_ticks) {
+    result.SetTotalVolume(result.GetTotalVolume() + tick.GetVolume());
+    result.SetAvgPrice(result.GetAvgPrice() + tick.GetPrice());
+
+    result.SetVwap(result.GetVwap() + (tick.GetPrice() * tick.GetVolume()));
+
+    if (at_start) {
+      result.SetMinPrice(tick.GetPrice());
+      result.SetMaxPrice(tick.GetPrice());
+      at_start = false;
+
+    } else {
+      result.SetMaxPrice(std::max(result.GetMaxPrice(), tick.GetPrice()));
+      result.SetMinPrice(std::min(result.GetMinPrice(), tick.GetPrice()));
+    }
+
+    result.SetCount(result.GetCount() + 1);
+  }
+
+  if (result.GetCount() > 0) {
+    result.SetAvgPrice(result.GetAvgPrice() / result.GetCount());
+
+    if (result.GetTotalVolume() > 0) {
+      result.SetVwap(result.GetVwap() / result.GetTotalVolume());
+    }
+  }
 }

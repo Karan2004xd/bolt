@@ -2,8 +2,9 @@
 #include "../include/database.hpp"
 #include "../include/constants.hpp"
 #include "../include/tick.hpp"
+#include "../include/aggregate_result.hpp"
 
-class RangeQueryFixture : public benchmark::Fixture {
+class AggregateQueryFixture : public benchmark::Fixture {
 public:
   std::unique_ptr<Database> db;
   uint64_t total_ticks = 0;
@@ -30,53 +31,59 @@ public:
   }
 };
 
-BENCHMARK_DEFINE_F(RangeQueryFixture, BM_QueryVsDBSize)(benchmark::State &state) {
+BENCHMARK_DEFINE_F(AggregateQueryFixture,
+                   BM_AggregateVsDbSize)(benchmark::State &state) {
+
   for (auto _ : state) {
-    auto ticks = db->GetForRange(1, 5000);
-    benchmark::DoNotOptimize(ticks);
+    auto result = db->Aggregate(1, 5000);
+    benchmark::DoNotOptimize(result);
   }
 }
 
-BENCHMARK_DEFINE_F(RangeQueryFixture, BM_QueryVsRangeSize)(benchmark::State &state) {
-  auto ticks_to_query = state.range(1);
+BENCHMARK_DEFINE_F(AggregateQueryFixture,
+                   BM_AggregateVsRangeSize)(benchmark::State &state) {
+
+  uint64_t ticks_to_aggregate = state.range(1);
   for (auto _ : state) {
-    auto ticks = db->GetForRange(1, ticks_to_query);
-    benchmark::DoNotOptimize(ticks);
+    auto result = db->Aggregate(1, ticks_to_aggregate);
+    benchmark::DoNotOptimize(result);
   }
 }
 
-BENCHMARK_DEFINE_F(RangeQueryFixture, BM_ReadWriteContention)(benchmark::State &state) {
-  auto stop_iterator = std::atomic<bool>(false);
+BENCHMARK_DEFINE_F(AggregateQueryFixture,
+                   BM_AggregateReadWriteContention)(benchmark::State &state) {
 
-  auto inserter = std::thread([&]() {
-    auto ts = total_ticks + 1;
-    while (!stop_iterator.load()) {
+  auto stop_inserter = std::atomic<bool>(false);
+
+  auto inserter = std::thread([&]{
+    uint64_t ts = total_ticks + 1;
+    while (!stop_inserter.load()) {
       db->Insert(Tick(ts++, 1.0, 100));
       std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
   });
 
   for (auto _ : state) {
-    auto ticks = db->GetForRange(1, 50000);
-    benchmark::DoNotOptimize(ticks);
+    AggregateResult result = db->Aggregate(1, 50000);
+    benchmark::DoNotOptimize(result);
   }
 
-  stop_iterator.store(true);
+  stop_inserter.store(true);
   if (inserter.joinable()) {
     inserter.join();
   }
 }
 
-BENCHMARK_REGISTER_F(RangeQueryFixture, BM_QueryVsDBSize)
+BENCHMARK_REGISTER_F(AggregateQueryFixture, BM_AggregateVsDbSize)
   ->Arg(1)->Arg(10)->Arg(50)->Arg(100);
 
-
-BENCHMARK_REGISTER_F(RangeQueryFixture, BM_QueryVsRangeSize)
+BENCHMARK_REGISTER_F(AggregateQueryFixture, BM_AggregateVsRangeSize)
   ->Args({50, 1000})
   ->Args({50, 10000})
   ->Args({50, 50000})
   ->Args({50, 100000});
 
-BENCHMARK_REGISTER_F(RangeQueryFixture, BM_ReadWriteContention)->Arg(20);
+BENCHMARK_REGISTER_F(AggregateQueryFixture, BM_AggregateReadWriteContention)
+  ->Arg(20);
 
 // BENCHMARK_MAIN();

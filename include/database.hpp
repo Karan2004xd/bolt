@@ -9,6 +9,7 @@ class BufferManager;
 class Tick;
 class State;
 class Buffer;
+class AggregateResult;
 
 class Database {
   TEST_FRIEND(DatabaseTest);
@@ -33,6 +34,13 @@ public:
   auto GetForRange(uint64_t start_ts,
                    uint64_t end_ts,
                    const filter_func &filter) -> std::vector<Tick>;
+
+  auto Aggregate(uint64_t start_ts,
+                 uint64_t end_ts) -> AggregateResult;
+
+  auto Aggregate(uint64_t start_ts,
+                 uint64_t end_ts,
+                 const filter_func &filter) -> AggregateResult;
 
   auto Size() const noexcept -> size_t;
   auto Flush() noexcept -> void;
@@ -71,8 +79,11 @@ private:
                         const std::shared_ptr<Buffer> &buffer,
                         const filter_func &filter) -> void;
 
-  auto GetSortedTicks_(std::vector<Tick> &&sealed_ticks,
-                       std::vector<Tick> &&active_ticks,
-                       bool sealed_ticks_sorted,
-                       bool active_ticks_sorted) -> std::vector<Tick>;
+  auto GetSortedTicks_(
+    uint64_t start_ts, uint64_t end_ts,
+    const std::shared_ptr<const State> &state,
+    const filter_func &filter = [](const Tick &){ return true;}) -> std::vector<Tick>;
+
+  auto SetAggregateObj_(AggregateResult &result,
+                        const std::vector<Tick> &sorted_ticks) const noexcept -> void;
 };
