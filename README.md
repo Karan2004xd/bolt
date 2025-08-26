@@ -1,2 +1,2 @@
-# bolt
-A high-performance, lock-free, in-memory tick store designed for ingesting and querying massive streams of financial market data with nanosecond precision.
+# bolt ⚡
+A high-throughput, low-latency in-memory time-series database for financial tick data, written in modern C++.
