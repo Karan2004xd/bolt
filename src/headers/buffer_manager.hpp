@@ -1,10 +1,12 @@
 #pragma once
 
-#include "macros.hpp"
+#include "../../include/bolt/macros.hpp"
 #include <mutex>
 #include <deque>
 #include <memory>
 #include <vector>
+
+namespace bolt {
 
 class Buffer;
 class Tick;
@@ -44,3 +46,5 @@ private:
   auto InsertBase_(const Tick &tick) noexcept -> void;
   auto SetNewState_(ptr<Buffer> &&new_sealed_buffer) noexcept -> void;
 };
+
+}

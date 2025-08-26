@@ -1,11 +1,14 @@
-#include "../include/buffer_manager.hpp"
-#include "../include/buffer.hpp"
-#include "../include/tick.hpp"
-#include "../include/thread_pool.hpp"
-#include "../include/state.hpp"
-#include "../include/constants.hpp"
+#include "headers/buffer_manager.hpp"
+#include "headers/buffer.hpp"
+#include "headers/thread_pool.hpp"
+#include "headers/state.hpp"
+#include "headers/constants.hpp"
+
+#include "../include/bolt/tick.hpp"
 
 using namespace Constants;
+
+namespace bolt {
 
 BufferManager::BufferManager(ThreadPool &pool) : pool_(pool) {
   maximum_sealed_buffers_ = ::kMAXIMUM_SEALED_BUFFERS;
@@ -66,4 +69,6 @@ auto BufferManager::InsertBase_(const Tick &tick) noexcept -> void {
       SetNewState_(nullptr);
     });
   }
+}
+
 }

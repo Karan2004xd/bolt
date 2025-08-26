@@ -1,6 +1,8 @@
 #include <benchmark/benchmark.h>
-#include "../include/database.hpp"
-#include "../include/tick.hpp"
+#include "../include/bolt/database.hpp"
+#include "../include/bolt/tick.hpp"
+
+using namespace bolt;
 
 static auto BM_SingleTickInsert(benchmark::State &state) -> void {
   auto db = Database();

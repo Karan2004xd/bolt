@@ -1,14 +1,16 @@
 #include <gtest/gtest.h>
-#include "../include/buffer.hpp"
-#include "../include/tick.hpp"
+#include "../src/headers//buffer.hpp"
+#include "../include/bolt/tick.hpp"
+
+namespace bolt {
 
 class BufferTest {
 public:
   static auto constructors_test() -> void {
     auto ticks = std::vector<Tick> {
-      Tick(1001, 100.01, 100, 1, 2, TraceConditions::kAcquisition),
-      Tick(1002, 100.02, 101, 2, 3, TraceConditions::kCashSale),
-      Tick(1003, 100.03, 102, 3, 4, TraceConditions::kRegularSale)
+      Tick(1001, 100.01, 100, 1, 2, TradeConditions::kAcquisition),
+      Tick(1002, 100.02, 101, 2, 3, TradeConditions::kCashSale),
+      Tick(1003, 100.03, 102, 3, 4, TradeConditions::kRegularSale)
     };
 
     auto buffer = Buffer(
@@ -28,8 +30,8 @@ public:
 
   static auto semantics_test() -> void {
     auto ticks = std::vector<Tick> {
-      Tick(1001, 100.01, 100, 1, 2, TraceConditions::kAcquisition),
-      Tick(1002, 100.02, 101, 2, 3, TraceConditions::kCashSale),
+      Tick(1001, 100.01, 100, 1, 2, TradeConditions::kAcquisition),
+      Tick(1002, 100.02, 101, 2, 3, TradeConditions::kCashSale),
     };
 
     // Copy semantics test
@@ -57,12 +59,12 @@ public:
 
   static auto equality_test() -> void {
     auto buffer = Buffer({
-      Tick(1001, 100.01, 100, 1, 2, TraceConditions::kAcquisition),
-      Tick(1002, 100.02, 101, 2, 3, TraceConditions::kCashSale),
+      Tick(1001, 100.01, 100, 1, 2, TradeConditions::kAcquisition),
+      Tick(1002, 100.02, 101, 2, 3, TradeConditions::kCashSale),
     });
 
     auto buffer2 = Buffer({
-      Tick(1001, 100.01, 100, 1, 2, TraceConditions::kAcquisition),
+      Tick(1001, 100.01, 100, 1, 2, TradeConditions::kAcquisition),
     });
 
     EXPECT_FALSE(buffer == buffer2);
@@ -76,10 +78,10 @@ public:
 
     auto symbol_ids = std::vector<uint32_t>{1, 2, 3};
     auto exchange_ids = std::vector<uint32_t>{2, 3, 4};
-    auto trace_conditions = std::vector<TraceConditions>{
-      TraceConditions::kRegularSale,
-      TraceConditions::kCashSale,
-      TraceConditions::kAcquisition
+    auto trace_conditions = std::vector<TradeConditions>{
+      TradeConditions::kRegularSale,
+      TradeConditions::kCashSale,
+      TradeConditions::kAcquisition
     };
 
     auto buffer = Buffer({
@@ -104,7 +106,7 @@ public:
 
   static auto store_tick_test() -> void {
     auto buffer = Buffer();
-    buffer.InsertTick(Tick(1001, 100.001, 100, 1, 2, TraceConditions::kCashSale));
+    buffer.InsertTick(Tick(1001, 100.001, 100, 1, 2, TradeConditions::kCashSale));
 
     EXPECT_EQ(buffer.timestamps_.back(), 1001);
     EXPECT_DOUBLE_EQ(buffer.prices_.back(), 100.001);
@@ -112,7 +114,7 @@ public:
 
     EXPECT_EQ(buffer.symbol_ids_.back(), 1);
     EXPECT_EQ(buffer.exchange_ids_.back(), 2);
-    EXPECT_EQ(buffer.trace_conditions_.back(), TraceConditions::kCashSale);
+    EXPECT_EQ(buffer.trace_conditions_.back(), TradeConditions::kCashSale);
   }
 
   static auto sort_test() -> void {
@@ -122,10 +124,10 @@ public:
 
     auto symbol_ids = std::vector<uint32_t>{1, 2, 3};
     auto exchange_ids = std::vector<uint32_t>{2, 3, 4};
-    auto trace_conditions = std::vector<TraceConditions>{
-      TraceConditions::kRegularSale,
-      TraceConditions::kCashSale,
-      TraceConditions::kAcquisition
+    auto trace_conditions = std::vector<TradeConditions>{
+      TradeConditions::kRegularSale,
+      TradeConditions::kCashSale,
+      TradeConditions::kAcquisition
     };
 
     auto buffer = Buffer({
@@ -148,9 +150,9 @@ public:
     check_columns_equality_(buffer.symbol_ids_, {1, 3, 2});
     check_columns_equality_(buffer.exchange_ids_, {2, 4, 3});
     check_columns_equality_(buffer.trace_conditions_, {
-      TraceConditions::kRegularSale,
-      TraceConditions::kAcquisition,
-      TraceConditions::kCashSale
+      TradeConditions::kRegularSale,
+      TradeConditions::kAcquisition,
+      TradeConditions::kCashSale
     });
 
     buffer.Sort(false);
@@ -161,15 +163,15 @@ public:
     check_columns_equality_(buffer.symbol_ids_, {2, 3, 1});
     check_columns_equality_(buffer.exchange_ids_, {3, 4, 2});
     check_columns_equality_(buffer.trace_conditions_, {
-      TraceConditions::kCashSale,
-      TraceConditions::kAcquisition,
-      TraceConditions::kRegularSale
+      TradeConditions::kCashSale,
+      TradeConditions::kAcquisition,
+      TradeConditions::kRegularSale
     });
   }
 
   static auto copy_test() -> void {
     auto buffer = Buffer({
-      Tick(1001, 100.01, 100, 1, 2, TraceConditions::kAcquisition)
+      Tick(1001, 100.01, 100, 1, 2, TradeConditions::kAcquisition)
     });
     check_buffer_equality_(buffer, buffer.Copy());
   }
@@ -204,7 +206,7 @@ private:
 
       EXPECT_EQ(buffer.symbol_ids_[i], ticks[i].GetSymbolId());
       EXPECT_EQ(buffer.exchange_ids_[i], ticks[i].GetExchangeId());
-      EXPECT_EQ(buffer.trace_conditions_[i], ticks[i].GetTraceCondtion());
+      EXPECT_EQ(buffer.trace_conditions_[i], ticks[i].GetTradeCondition());
     }
   }
 
@@ -229,6 +231,10 @@ private:
     EXPECT_TRUE(col1 == col2);
   }
 };
+
+}
+
+using namespace bolt;
 
 TEST(BufferTest, ConstructorsTest) {
   BufferTest::constructors_test();

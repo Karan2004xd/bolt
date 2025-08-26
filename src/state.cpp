@@ -1,5 +1,7 @@
-#include "../include/state.hpp"
-#include "../include/buffer.hpp"
+#include "headers/state.hpp"
+#include "headers/buffer.hpp"
+
+namespace bolt {
 
 State::State() {
   active_buffer_ = std::make_shared<Buffer>();
@@ -71,4 +73,6 @@ auto State::EqualityCheck_(const State &other) const -> bool {
     }
   }
   return true;
+}
+
 }

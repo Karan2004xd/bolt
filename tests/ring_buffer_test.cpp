@@ -1,7 +1,9 @@
 #include <gtest/gtest.h>
-#include "../include/ring_buffer.hpp"
-#include "../include/tick.hpp"
-#include <thread>
+
+#include "../src/headers/ring_buffer.hpp"
+#include "../include/bolt/tick.hpp"
+
+namespace bolt {
 
 class RingBufferTest {
 public:
@@ -131,6 +133,9 @@ private:
     return ticks;
   }
 };
+}
+
+using namespace bolt;
 
 TEST(RingBufferTest, SingleIngestionTest) {
   RingBufferTest::single_ingestion_test();

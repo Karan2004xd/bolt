@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
-#include "../include/aggregate_result.hpp"
+#include "../include/bolt/aggregate_result.hpp"
+
+namespace bolt {
 
 class AggregateResultTest {
 public:
@@ -61,6 +63,10 @@ public:
     EXPECT_TRUE(obj2 != obj);
   }
 };
+
+}
+
+using namespace bolt;
 
 TEST(AggregateResultTest, ConstructorTest) {
   AggregateResultTest::constructor_test();

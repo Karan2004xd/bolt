@@ -1,8 +1,10 @@
 #pragma once
-#include "macros.hpp"
+#include "../../include/bolt/macros.hpp"
 #include <atomic>
 #include <vector>
 #include <optional>
+
+namespace bolt {
 
 class Tick;
 
@@ -24,3 +26,5 @@ private:
 
   std::atomic<uint64_t> reader_, writer_;
 };
+
+}

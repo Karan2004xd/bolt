@@ -1,23 +1,25 @@
 #include <gtest/gtest.h>
-#include <memory>
-#include "../include/state.hpp"
-#include "../include/buffer.hpp"
-#include "../include/tick.hpp"
+
+#include "../src/headers/state.hpp"
+#include "../src/headers/buffer.hpp"
+#include "../include/bolt/tick.hpp"
+
+namespace bolt {
 
 class StateTest {
 public:
   static auto constructors_test() -> void {
     auto sealed_buffers = State::sealed_list{
       std::make_shared<Buffer>(Buffer({
-        Tick(1001, 10.001, 100, 1, 2, TraceConditions::kAutomaticExecution)
+        Tick(1001, 10.001, 100, 1, 2, TradeConditions::kAutomaticExecution)
       })),
 
       std::make_shared<Buffer>(Buffer({
-        Tick(1002, 10.001, 200, 1, 2, TraceConditions::kAcquisition)
+        Tick(1002, 10.001, 200, 1, 2, TradeConditions::kAcquisition)
       })),
 
       std::make_shared<Buffer>(Buffer({
-        Tick(1003, 10.001, 300, 1, 2, TraceConditions::kCashSale)
+        Tick(1003, 10.001, 300, 1, 2, TradeConditions::kCashSale)
       }))
     };
 
@@ -137,6 +139,9 @@ private:
     }
   }
 };
+}
+
+using namespace bolt;
 
 TEST(StateTest, ConstructorsTest) {
   StateTest::constructors_test();

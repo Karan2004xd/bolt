@@ -1,8 +1,10 @@
 #pragma once
 
-#include "macros.hpp"
+#include "../../include/bolt/macros.hpp"
 #include <deque>
 #include <memory>
+
+namespace bolt {
 
 class Buffer;
 
@@ -40,3 +42,5 @@ private:
   auto MoveFrom_(State &&other) noexcept -> void;
   auto EqualityCheck_(const State &other) const -> bool;
 };
+
+}

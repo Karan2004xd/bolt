@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
-#include "../include/tick.hpp"
+#include "../include/bolt/tick.hpp"
+
+namespace bolt {
 
 class TickTest {
 public:
@@ -11,15 +13,15 @@ public:
     EXPECT_EQ(tick.volume_, 100);
     EXPECT_EQ(tick.symbol_id_, {});
     EXPECT_EQ(tick.exchange_id_, {});
-    EXPECT_EQ(tick.trace_condition_, TraceConditions::kNone);
+    EXPECT_EQ(tick.trade_condition_, TradeConditions::kNone);
 
-    auto tick2 = Tick(1001, 101.223, 100, 1, 2, TraceConditions::kAcquisition);
+    auto tick2 = Tick(1001, 101.223, 100, 1, 2, TradeConditions::kAcquisition);
     EXPECT_EQ(tick2.timestamp_, 1001);
     EXPECT_DOUBLE_EQ(tick2.price_, 101.223);
     EXPECT_EQ(tick2.volume_, 100);
     EXPECT_EQ(tick2.symbol_id_, 1);
     EXPECT_EQ(tick2.exchange_id_, 2);
-    EXPECT_EQ(tick2.trace_condition_, TraceConditions::kAcquisition);
+    EXPECT_EQ(tick2.trade_condition_, TradeConditions::kAcquisition);
   }
 
   static auto semantics_test() -> void {
@@ -49,14 +51,14 @@ public:
     auto tick = Tick(1001, 1001.122, 10010);
     tick.symbol_id_ = 1;
     tick.exchange_id_ = 2;
-    tick.trace_condition_ = TraceConditions::kAcquisition;
+    tick.trade_condition_ = TradeConditions::kAcquisition;
 
     EXPECT_EQ(tick.GetTimestamp(), 1001);
     EXPECT_EQ(tick.GetSymbolId(), 1);
     EXPECT_EQ(tick.GetExchangeId(), 2);
     EXPECT_EQ(tick.GetVolume(), 10010);
     EXPECT_DOUBLE_EQ(tick.GetPrice(), 1001.122);
-    EXPECT_EQ(tick.GetTraceCondtion(), TraceConditions::kAcquisition);
+    EXPECT_EQ(tick.GetTradeCondition(), TradeConditions::kAcquisition);
   }
 
   static auto setters_test() -> void {
@@ -67,14 +69,14 @@ public:
     tick.SetVolume(10010);
     tick.SetSymbolId(1);
     tick.SetExchangeId(2);
-    tick.SetTraceCondtition(TraceConditions::kAcquisition);
+    tick.SetTradeCondition(TradeConditions::kAcquisition);
 
     EXPECT_EQ(tick.timestamp_, 1001);
     EXPECT_DOUBLE_EQ(tick.price_, 1001.122);
     EXPECT_EQ(tick.volume_, 10010);
     EXPECT_EQ(tick.symbol_id_, 1);
     EXPECT_EQ(tick.exchange_id_, 2);
-    EXPECT_EQ(tick.trace_condition_, TraceConditions::kAcquisition);
+    EXPECT_EQ(tick.trade_condition_, TradeConditions::kAcquisition);
   }
 
   static auto equality_operator_test() -> void {
@@ -104,9 +106,12 @@ private:
     EXPECT_EQ(tick1.exchange_id_, tick2.exchange_id_);
     EXPECT_DOUBLE_EQ(tick1.price_, tick2.price_);
     EXPECT_EQ(tick1.volume_, tick2.volume_);
-    EXPECT_EQ(tick1.trace_condition_, tick2.trace_condition_);
+    EXPECT_EQ(tick1.trade_condition_, tick2.trade_condition_);
   }
 };
+}
+
+using namespace bolt;
 
 TEST(TickTest, ConstructorTest) {
   TickTest::constructor_test();

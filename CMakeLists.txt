@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.16)
 
 project(bolt)
 
+include(GNUInstallDirs)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -16,3 +18,13 @@ add_subdirectory("./benchmarks")
 add_executable(${PROJECT_NAME} main.cpp)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE bolt_lib)
+
+# Packaging Rules
+set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
+set(CPACK_PACKAGE_VERSION "1.0.0")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
+"Bolt: A high-performance time-series database library")
+set(CPACK_PACKAGE_VENDOR "Karan Prajapati")
+set(CPACK_GENERATOR "TGZ")
+
+include(CPack)

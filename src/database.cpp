@@ -1,15 +1,19 @@
-#include "../include/database.hpp"
-#include "../include/thread_pool.hpp"
-#include "../include/ring_buffer.hpp"
-#include "../include/buffer_manager.hpp"
-#include "../include/tick.hpp"
-#include "../include/buffer.hpp"
-#include "../include/state.hpp"
-#include "../include/constants.hpp"
-#include "../include/aggregate_result.hpp"
+#include "headers/buffer_manager.hpp"
+#include "headers/buffer.hpp"
+#include "headers/thread_pool.hpp"
+#include "headers/state.hpp"
+#include "headers/constants.hpp"
+#include "headers/ring_buffer.hpp"
+
+#include "../include/bolt/database.hpp"
+#include "../include/bolt/tick.hpp"
+#include "../include/bolt/aggregate_result.hpp"
+
 #include <algorithm>
 
 using namespace Constants;
+
+namespace bolt {
 
 Database::Database() {
   data_buffer_ = std::make_shared<RingBuffer>();
@@ -296,4 +300,6 @@ auto Database::SetAggregateObj_(
       result.SetVwap(result.GetVwap() / result.GetTotalVolume());
     }
   }
+}
+
 }

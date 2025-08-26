@@ -1,20 +1,22 @@
-#include "../include/tick.hpp"
+#include "../include/bolt/tick.hpp"
 #include <cmath>
 #include <cstring>
 #include <limits>
+
+namespace bolt {
 
 Tick::Tick(uint64_t timestamp, double price, uint32_t volume)
   : timestamp_(timestamp), price_(price), volume_(volume) {}
 
 Tick::Tick(uint64_t timestamp, double price, uint32_t volume,
-           uint32_t symbol_id, uint32_t exchange_id, TraceConditions trace_condition) {
+           uint32_t symbol_id, uint32_t exchange_id, TradeConditions trade_condition) {
   timestamp_ = timestamp;
   price_ = price;
   volume_ = volume;
 
   symbol_id_ = symbol_id;
   exchange_id_ = exchange_id;
-  trace_condition_ = trace_condition;
+  trade_condition_ = trade_condition;
 }
 
 auto Tick::operator==(const Tick &other) const noexcept -> bool {
@@ -45,8 +47,8 @@ auto Tick::GetExchangeId() const noexcept -> uint32_t {
   return exchange_id_;
 }
 
-auto Tick::GetTraceCondtion() const noexcept -> const TraceConditions & {
-  return trace_condition_;
+auto Tick::GetTradeCondition() const noexcept -> const TradeConditions & {
+  return trade_condition_;
 }
 
 auto Tick::SetTimeStamp(uint64_t timestamp) noexcept -> void {
@@ -69,8 +71,8 @@ auto Tick::SetExchangeId(uint32_t exchange_id) noexcept -> void {
   exchange_id_ = exchange_id;
 }
 
-auto Tick::SetTraceCondtition(const TraceConditions &trace_condition) noexcept -> void {
-  trace_condition_ = trace_condition;
+auto Tick::SetTradeCondition(const TradeConditions &trade_condition) noexcept -> void {
+  trade_condition_ = trade_condition;
 }
 
 auto Tick::Serialize(char *buffer) const -> void {
@@ -88,8 +90,10 @@ auto Tick::check_equality_(const Tick &other) const noexcept -> bool {
   if (other.symbol_id_ != symbol_id_) return false;
   if (other.exchange_id_ != exchange_id_) return false;
   if (other.volume_ != volume_) return false;
-  if (other.trace_condition_ != trace_condition_) return false;
+  if (other.trade_condition_ != trade_condition_) return false;
 
   if (std::fabs(price_ - other.price_) > epsilon) return false;
   return true;
+}
+
 }

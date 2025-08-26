@@ -1,4 +1,6 @@
-#include "../include/aggregate_result.hpp"
+#include "../include/bolt/aggregate_result.hpp"
+
+namespace bolt {
 
 AggregateResult::AggregateResult(size_t count, uint64_t total_volume,
                                  double max_price, double min_price,
@@ -75,4 +77,6 @@ auto AggregateResult::EqualityCheck_(
   if (other.vwap_ != vwap_) return false;
 
   return true;
+}
+
 }

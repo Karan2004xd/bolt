@@ -1,9 +1,11 @@
 #pragma once
 
-#include "macros.hpp"
+#include "../../include/bolt/macros.hpp"
 #include <future>
 #include <queue>
 #include <functional>
+
+namespace bolt {
 
 class ThreadPool {
   TEST_FRIEND(ThreadPoolTest);
@@ -58,3 +60,5 @@ private:
   auto StopWorkersBase_() noexcept -> void;
   auto StartPoolBase_() noexcept -> void;
 };
+
+}

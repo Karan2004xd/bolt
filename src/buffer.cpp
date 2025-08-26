@@ -1,7 +1,9 @@
-#include "../include/buffer.hpp"
-#include "../include/tick.hpp"
+#include "headers/buffer.hpp"
+#include "../include/bolt/tick.hpp"
 #include <numeric>
 #include <algorithm>
+
+namespace bolt {
 
 Buffer::Buffer(size_t reserve_capacity) {
   timestamps_.reserve(reserve_capacity);
@@ -64,7 +66,7 @@ auto Buffer::GetVolumes() const noexcept -> list_cref<uint32_t> {
 }
 
 auto Buffer::GetTraceCondtions() const noexcept 
-  -> list_cref<TraceConditions> {
+  -> list_cref<TradeConditions> {
   return trace_conditions_;
 }
 
@@ -167,7 +169,9 @@ auto Buffer::StoreData_(const std::vector<Tick> &ticks) noexcept -> void {
 
     symbol_ids_.push_back(tick.GetSymbolId());
     exchange_ids_.push_back(tick.GetExchangeId());
-    trace_conditions_.push_back(tick.GetTraceCondtion());
+    trace_conditions_.push_back(tick.GetTradeCondition());
     size_++;
   }
+}
+
 }

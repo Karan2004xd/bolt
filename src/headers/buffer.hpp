@@ -1,8 +1,10 @@
 #pragma once
 
 #include <vector>
-#include "trace_conditions.hpp"
-#include "macros.hpp"
+#include "../../include/bolt/trade_conditions.hpp"
+#include "../../include/bolt/macros.hpp"
+
+namespace bolt {
 
 class Tick;
 
@@ -33,7 +35,7 @@ public:
 
   auto GetPrices() const noexcept -> list_cref<double>;
   auto GetVolumes() const noexcept -> list_cref<uint32_t>;
-  auto GetTraceCondtions() const noexcept -> list_cref<TraceConditions>;
+  auto GetTraceCondtions() const noexcept -> list_cref<TradeConditions>;
 
   auto InsertTick(const Tick &tick) noexcept -> void;
 
@@ -49,7 +51,7 @@ private:
   std::vector<uint32_t> exchange_ids_;
   std::vector<double> prices_;
   std::vector<uint32_t> volumes_;
-  std::vector<TraceConditions> trace_conditions_;
+  std::vector<TradeConditions> trace_conditions_;
 
   uint64_t size_ {};
   bool is_sorted_ {true};
@@ -60,3 +62,5 @@ private:
   auto CopyFrom_(const Buffer &other) -> void;
   auto MoveFrom_(Buffer &&other) noexcept -> void;
 };
+
+}

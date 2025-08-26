@@ -1,7 +1,9 @@
-#include "../include/thread_pool.hpp"
-#include "../include/constants.hpp"
+#include "headers/thread_pool.hpp"
+#include "headers/constants.hpp"
 
 using namespace Constants;
+
+namespace bolt {
 
 ThreadPool::ThreadPool() : stop_workers_(false) {
   auto system_threads = std::thread::hardware_concurrency() / 2;
@@ -60,4 +62,6 @@ auto ThreadPool::StartPoolBase_() noexcept -> void {
   for (int i = 0; i < number_of_threads_; i++) {
     workers_[i] = std::thread(&ThreadPool::StartWorker_, this);
   }
+}
+
 }

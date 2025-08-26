@@ -1,8 +1,11 @@
-#include "../include/ring_buffer.hpp"
-#include "../include/tick.hpp"
-#include "../include/constants.hpp"
+#include "headers/ring_buffer.hpp"
+#include "headers/constants.hpp"
+
+#include "../include/bolt/tick.hpp"
 
 using namespace Constants;
+
+namespace bolt {
 
 RingBuffer::RingBuffer() : reader_(0), writer_(0) {
   ring_buffer_size_ = ::kRING_BUFFER_SIZE;
@@ -54,4 +57,6 @@ auto RingBuffer::IsFull() const noexcept -> bool {
   auto writer_pos = writer_.load(std::memory_order_acquire);
   auto reader_pos = reader_.load(std::memory_order_acquire);
   return writer_pos - reader_pos >= ring_buffer_size_;
+}
+
 }

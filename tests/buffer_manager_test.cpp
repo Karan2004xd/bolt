@@ -1,9 +1,12 @@
 #include <gtest/gtest.h>
-#include "../include/buffer_manager.hpp"
-#include "../include/thread_pool.hpp"
-#include "../include/tick.hpp"
-#include "../include/buffer.hpp"
-#include "../include/state.hpp"
+
+#include "../src/headers/buffer_manager.hpp"
+#include "../src/headers/thread_pool.hpp"
+#include "../src/headers/buffer.hpp"
+#include "../include/bolt/tick.hpp"
+#include "../src/headers/state.hpp"
+
+namespace bolt {
 
 class BufferManagerTest {
 public:
@@ -75,6 +78,10 @@ public:
     EXPECT_EQ(state->GetActiveBuffer()->GetTimestamps().back(), 101);
   }
 };
+
+}
+
+using namespace bolt;
 
 TEST(BufferManagerTest, SimpleInsertTest) {
   BufferManagerTest::simple_insert_test();

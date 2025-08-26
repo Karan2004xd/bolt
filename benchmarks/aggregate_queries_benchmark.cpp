@@ -1,8 +1,11 @@
 #include <benchmark/benchmark.h>
-#include "../include/database.hpp"
-#include "../include/constants.hpp"
-#include "../include/tick.hpp"
-#include "../include/aggregate_result.hpp"
+#include "../src/headers/constants.hpp"
+
+#include "../include/bolt/database.hpp"
+#include "../include/bolt/tick.hpp"
+#include "../include/bolt/aggregate_result.hpp"
+
+using namespace bolt;
 
 class AggregateQueryFixture : public benchmark::Fixture {
 public:

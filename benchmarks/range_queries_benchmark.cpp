@@ -1,7 +1,10 @@
 #include <benchmark/benchmark.h>
-#include "../include/database.hpp"
-#include "../include/constants.hpp"
-#include "../include/tick.hpp"
+#include "../include/bolt/database.hpp"
+#include "../include/bolt/tick.hpp"
+
+#include "../src/headers/constants.hpp"
+
+using namespace bolt;
 
 class RangeQueryFixture : public benchmark::Fixture {
 public:

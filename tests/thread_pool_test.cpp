@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
-#include "../include/thread_pool.hpp"
+#include "../src/headers/thread_pool.hpp"
+
+namespace bolt {
 
 class ThreadPoolTest {
 public:
@@ -75,6 +77,9 @@ public:
     EXPECT_EQ(restarted_task_ctr.load(), restarted_initial_tasks);
   }
 };
+}
+
+using namespace bolt;
 
 TEST(ThreadPoolTest, ConstructorTest) {
   ThreadPoolTest::constructors_test();

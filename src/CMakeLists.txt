@@ -1,16 +1,21 @@
 project(bolt_lib)
 
-add_library(${PROJECT_NAME}
-  "./tick.cpp"
-  "./ring_buffer.cpp"
-  "./thread_pool.cpp"
-  "./buffer.cpp"
-  "./buffer_manager.cpp"
-  "./state.cpp"
-  "./database.cpp"
-  "./aggregate_result.cpp"
+file(GLOB BOLT_SOURCES "*.cpp")
+
+add_library(${PROJECT_NAME} ${BOLT_SOURCES})
+
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    "${CMAKE_SOURCE_DIR}/include"
+
+  PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/headers"
 )
 
-target_link_directories(
-  ${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/include"
+install(TARGETS ${PROJECT_NAME}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
+
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/include/bolt"
+  DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
 )

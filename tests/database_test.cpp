@@ -1,11 +1,15 @@
 #include <gtest/gtest.h>
-#include "../include/database.hpp"
-#include "../include/tick.hpp"
-#include "../include/buffer_manager.hpp"
-#include "../include/buffer.hpp"
-#include "../include/state.hpp"
-#include "../include/aggregate_result.hpp"
 #include <algorithm>
+
+#include "../include/bolt/database.hpp"
+#include "../include/bolt/tick.hpp"
+#include "../include/bolt/aggregate_result.hpp"
+
+#include "../src/headers/buffer_manager.hpp"
+#include "../src/headers/buffer.hpp"
+#include "../src/headers/state.hpp"
+
+namespace bolt {
 
 class DatabaseTest {
 public:
@@ -187,6 +191,9 @@ private:
     return buffer;
   }
 };
+}
+
+using namespace bolt;
 
 TEST(DatabaseTest, ConstructorsTest) {
   DatabaseTest::constructor_test();
