@@ -19,7 +19,7 @@ Benchmarks were conducted on a 4-core, 3.9 GHz CPU. The results demonstrate the 
 
 | Benchmark Scenario                       | Result                     | Latency     |
 | :--------------------------------------- | :------------------------- | :---------- |
-| **Multi-Producer Ingestion** (4 Threads) | **~230 Million ticks/sec** | -           |
+| **Multi-Producer Ingestion** (4 Threads) | **~294 Million ticks/sec** | -           |
 | **Peak Single-Producer Ingestion**       | **~60 Million ticks/sec**  | -           |
 | **Single Tick Ingestion Latency**        | -                          | **~133 ns** |
 | **Range Query** (1M ticks in DB)         | -                          | **~1.4 ms** |
