@@ -1,0 +1,13 @@
+# BoltConfig.cmake.in
+@PACKAGE_INIT@
+
+# Get the directory where BoltConfig.cmake is located
+get_filename_component(_dir "${CMAKE_CURRENT_LIST_FILE}" PATH)
+
+# Include the targets file that defines the Bolt::bolt_lib target
+include("${_dir}/BoltTargets.cmake")
+
+# Check if the target was successfully included
+if(NOT TARGET Bolt::bolt_lib)
+  message(FATAL_ERROR "Could not find Bolt::bolt_lib target.")
+endif()
