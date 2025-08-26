@@ -9,6 +9,17 @@ Tick::Tick(uint64_t timestamp, double price, uint32_t volume)
   : timestamp_(timestamp), price_(price), volume_(volume) {}
 
 Tick::Tick(uint64_t timestamp, double price, uint32_t volume,
+           uint32_t symbol_id, uint32_t exchange_id) {
+  timestamp_ = timestamp;
+  price_ = price;
+  volume_ = volume;
+
+  symbol_id_ = symbol_id;
+  exchange_id_ = exchange_id;
+  trade_condition_ = {};
+}
+
+Tick::Tick(uint64_t timestamp, double price, uint32_t volume,
            uint32_t symbol_id, uint32_t exchange_id, TradeConditions trade_condition) {
   timestamp_ = timestamp;
   price_ = price;

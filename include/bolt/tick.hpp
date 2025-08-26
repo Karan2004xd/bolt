@@ -21,6 +21,10 @@ class Tick {
 public:
   Tick() = default;
   Tick(uint64_t timestamp, double price, uint32_t volume);
+
+  Tick(uint64_t timestamp, double price, uint32_t volume,
+       uint32_t symbol_id, uint32_t exchange_id);
+
   Tick(uint64_t timestamp, double price, uint32_t volume,
        uint32_t symbol_id, uint32_t exchange_id, TradeConditions trace_condition);
 
