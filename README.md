@@ -161,3 +161,31 @@ int main() {
 }
 ```
 
+**For more examples check out the `examples/` directory**
+
+---
+## Contributing & Future Work
+
+Bolt is a new and actively developing project. While it has been tested thoroughly, there may still be bugs or areas for improvement. Community feedback, suggestions, and contributions are highly welcome and appreciated.
+
+### How to Contribute
+
+The best way to contribute is by opening an issue or submitting a pull request.
+
+-   **Found a Bug?** If you've found a bug, please [open an issue](https://github.com/Karan2004xd/bolt/issues) and provide as much detail as possible, including steps to reproduce it.
+-   **Have a Feature Idea?** I'd love to hear it! Please [open an issue](https://github.com/YOUR_USERNAME/bolt/issues) to discuss your idea.
+-   **Want to Write Code?** If you'd like to contribute code, please follow this simple workflow:
+    1.  Fork the repository.
+    2.  Create a new feature branch (`git checkout -b feature/MyNewFeature`).
+    3.  Commit your changes (`git commit -m 'Add some new feature'`).
+    4.  Push to your branch (`git push origin feature/MyNewFeature`).
+    5.  Open a Pull Request.
+
+### Roadmap
+
+Some of the potential features planned for future releases include:
+-   Tiered storage (moving cold, in-memory buffers to disk).
+-   Advanced secondary indexing on columns like `symbol_id`.
+-   A network layer to allow remote clients to connect and query the database.
+
+Thank you for your interest in Bolt!
