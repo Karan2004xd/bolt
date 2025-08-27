@@ -48,6 +48,21 @@ Bolt's performance is the result of three key design decisions:
 3.  **Atomic Snapshots for Reads:** Queries never operate on live, changing data. The background processing thread periodically publishes a new, immutable `State` object (containing the active buffer and all sealed, sorted buffers) via a single `std::atomic` operation. Readers simply load this atomic pointer to get a perfectly consistent and isolated view (*a copy*) of the entire database for the duration of their query.
 
 ---
+
+## Architectural Scope & Trade-offs
+
+Bolt `v1.0.0` is highly optimized for a specific set of use cases. The current design prioritizes maximum ingestion speed and in-memory query performance, leading to the following architectural choices:
+
+- **In-Memory First By Design:** The primary goal is to serve as an extremely fast, memory-resident cache for hot, real-time data. Consequently, Bolt does not currently offer durability guarantees; data is lost upon application restart. A potential future direction is to add tiered storage for persisting sealed, cold buffers to disk.
+
+- **Embedded Library, Not a Server:** To eliminate network overhead and provide the lowest possible latency, Bolt is designed as a library to be directly embedded within a C++ application. It does not have a network layer for remote clients, though this could be a feature for a future release.
+
+- **Optimized For Time-Series Scans:** The query engine is specialized for its core competency: extremely fast scans over time ranges. It does not yet feature a complex query language, secondary indexing on non-timestamp columns, or support for joins.
+
+- **Single-Writer Principle:** The database employs a single-consumer thread to process incoming data. This design choice simplifies the architecture, eliminates write-side lock contention, and ensures that data is processed in a predictable order, which is a powerful and common pattern in low-latency systems.
+
+---
+
 ## Installation Guide & Requirements
 
 ### Requirements
