@@ -11,8 +11,6 @@ Bolt is a specialized, performant time-series database built from the ground up 
 
 The entire system is engineered around a lock-free, asynchronous architecture to maximize performance on multi-core systems.
 
----
-
 ## Performance Highlights
 
 Benchmarks were conducted on a 4-core, 3.9 GHz CPU. The results demonstrate the system's capability to handle extreme data rates while maintaining low-latency query responses.
@@ -25,7 +23,6 @@ Benchmarks were conducted on a 4-core, 3.9 GHz CPU. The results demonstrate the 
 | **Range Query** (1M ticks in DB)         | -                          | **~1.4 ms** |
 | **Aggregate Query** (OHLC, 1k ticks)     | -                          | **~433 µs** |
 
----
 
 ## Key Features
 
@@ -35,7 +32,6 @@ Benchmarks were conducted on a 4-core, 3.9 GHz CPU. The results demonstrate the 
 - **Asynchronous Compaction & Sealing:** In-memory buffers are sealed, sorted, and published to readers by a background thread pool, keeping all expensive operations off the critical ingestion path.
 - **Modern C++ Design:** Built with C++20, focusing on performance, safety, and modern idioms.
 
----
 
 ## Core Architectural Concepts
 
@@ -47,7 +43,6 @@ Bolt's performance is the result of three key design decisions:
 
 3.  **Atomic Snapshots for Reads:** Queries never operate on live, changing data. The background processing thread periodically publishes a new, immutable `State` object (containing the active buffer and all sealed, sorted buffers) via a single `std::atomic` operation. Readers simply load this atomic pointer to get a perfectly consistent and isolated view (*a copy*) of the entire database for the duration of their query.
 
----
 
 ## Architectural Scope & Trade-offs
 
@@ -61,7 +56,6 @@ Bolt `v1.0.0` is highly optimized for a specific set of use cases. The current d
 
 - **Single-Writer Principle:** The database employs a single-consumer thread to process incoming data. This design choice simplifies the architecture, eliminates write-side lock contention, and ensures that data is processed in a predictable order, which is a powerful and common pattern in low-latency systems.
 
----
 
 ## Installation Guide & Requirements
 
@@ -136,7 +130,6 @@ cd build && make
 ./my_app
 ```
 
----
 ## API Usage (A Basic example)
 
 Here is a simple example of how to use the Bolt database library.
@@ -178,7 +171,6 @@ int main() {
 
 **For more examples check out the `examples/` directory**
 
----
 ## Contributing & Future Work
 
 Bolt is a new and actively developing project. While it has been tested thoroughly, there may still be bugs or areas for improvement. Community feedback, suggestions, and contributions are highly welcome and appreciated.
